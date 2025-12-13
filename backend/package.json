@@ -1,0 +1,20 @@
+{
+  "name": "eventify-backend",
+  "version": "1.0.0",
+  "description": "REST ful api for handling events organization and ticketing.",
+  "homepage": "https://github.com/Gopichandu923/Eventify#readme",
+  "bugs": {
+    "url": "https://github.com/Gopichandu923/Eventify/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Gopichandu923/Eventify.git"
+  },
+  "license": "ISC",
+  "author": "gopi",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
