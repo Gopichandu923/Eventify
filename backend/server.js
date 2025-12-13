@@ -2,12 +2,16 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 
+import connect from "./config/db.js";
+
 dotenv.config();
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+connect();
 
 const PORT = process.env.PORT_NUM || 5000;
 
