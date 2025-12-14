@@ -12,7 +12,7 @@ const eventSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    available: { type: Number, required: true, default: 0 },
+    availableTickets: { type: Number, required: true, default: 0 },
     approvalMethod: {
       type: String,
       enum: ["auto", "manual"],
