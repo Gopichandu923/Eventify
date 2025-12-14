@@ -7,8 +7,8 @@ const registrationSchema = new mongoose.Schema(
       ref: "Event",
       required: true,
     },
-    name: { type: String, require: true },
-    email: { name: String, required: true },
+    name: { type: String, required: true },
+    email: { type: String, required: true },
     status: {
       type: String,
       enum: ["Pending", "Approved", "Rejected"],
@@ -18,7 +18,7 @@ const registrationSchema = new mongoose.Schema(
     tickedId: {
       type: String,
       unique: true,
-      require: true,
+      required: true,
     },
   },
   { timestamps: true }
