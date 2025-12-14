@@ -6,7 +6,7 @@ import connect from "./config/db.js";
 
 import authRoutes from "./routes/auth.js";
 import eventRoutes from "./routes/event.js";
-
+import registrationRoutes from "./routes/registration.js";
 dotenv.config();
 
 const app = express();
@@ -17,7 +17,8 @@ app.use(express.json());
 connect();
 
 app.use("/api/auth", authRoutes);
-app.use("/api/event", eventRoutes);
+app.use("/api/events", eventRoutes);
+app.use("/api/registrations", registrationRoutes);
 
 const PORT = process.env.PORT_NUM || 5000;
 
