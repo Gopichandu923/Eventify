@@ -5,6 +5,7 @@ import cors from "cors";
 import connect from "./config/db.js";
 
 import authRoutes from "./routes/auth.js";
+import eventRoutes from "./routes/event.js";
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.use(express.json());
 connect();
 
 app.use("/api/auth", authRoutes);
+app.use("/api/event", eventRoutes);
 
 const PORT = process.env.PORT_NUM || 5000;
 
