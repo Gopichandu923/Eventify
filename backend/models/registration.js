@@ -7,16 +7,23 @@ const registrationSchema = new mongoose.Schema(
       ref: "Event",
       required: true,
     },
-    name: { type: String, required: true },
-    email: { type: String, required: true },
+    name: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+    },
     status: {
       type: String,
-      enum: ["Pending", "Approved", "Rejected"],
+      enum: ["Pending", "Approved"],
       default: "Pending",
-      required: true,
     },
   },
   { timestamps: true }
 );
+
+registrationSchema.index({ event: 1, email: 1 }, { unique: true });
 
 export default mongoose.model("Registration", registrationSchema);
