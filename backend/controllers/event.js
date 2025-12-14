@@ -24,6 +24,7 @@ export const createEvent = async (req, res) => {
       venue,
       ticketLimit,
       organizer: userId,
+      available: ticketLimit,
       approvalMethod,
     });
     await newEvent.save();
