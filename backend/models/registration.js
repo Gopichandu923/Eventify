@@ -15,11 +15,6 @@ const registrationSchema = new mongoose.Schema(
       default: "Pending",
       required: true,
     },
-    tickedId: {
-      type: String,
-      unique: true,
-      required: true,
-    },
   },
   { timestamps: true }
 );
