@@ -85,3 +85,14 @@ export const getRegistrations = async (req, res) => {
     return res.status(500).json({ message: "Internal server error." });
   }
 };
+
+//GET all events (public)
+export const getAllEvents = async (req, res) => {
+  try {
+    const events = await EventModel.find();
+    return res.status(200).json(events);
+  } catch (error) {
+    console.log("Error retrieving all events:" + error);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+};
