@@ -7,6 +7,7 @@ Eventify is a full-stack **MERN** application designed to streamline event creat
 ## 🚀 Project Overview
 
 Eventify allows:
+
 - **Organizers** to create events, review registrations, and approve or reject attendees.
 - **Attendees** to register for events and retrieve their unique digital tickets using their email and event ID.
 
@@ -17,6 +18,7 @@ The system ensures a smooth and transparent event registration workflow with sec
 ## ✨ Key Features
 
 ### 👨‍💼 For Organizers (Protected Routes)
+
 - **Event Management**
   - Create, view, and manage events (title, venue, date).
 - **Registration Review**
@@ -26,6 +28,7 @@ The system ensures a smooth and transparent event registration workflow with sec
   - Secure JWT-based login system for organizers.
 
 ### 👥 For Attendees (Public Access)
+
 - **Public Event Registration**
   - Simple registration form.
   - Tickets are created with a default **Pending** status.
@@ -40,6 +43,7 @@ The system ensures a smooth and transparent event registration workflow with sec
 ## 🛠️ Tech Stack
 
 ### Frontend (Client)
+
 - **React** – UI development
 - **TypeScript** – Type safety and maintainability
 - **React Router** – Page navigation
@@ -47,6 +51,7 @@ The system ensures a smooth and transparent event registration workflow with sec
 - **Tailwind CSS** – Utility-first styling
 
 ### Backend (API)
+
 - **Node.js / Express** – Server framework
 - **MongoDB / Mongoose** – Database and ODM
 - **JWT (JSON Web Tokens)** – Authentication & authorization
@@ -57,6 +62,7 @@ The system ensures a smooth and transparent event registration workflow with sec
 ## 💻 Installation & Setup
 
 ### Prerequisites
+
 - **Node.js** v18+
 - **MongoDB** (Local or MongoDB Atlas)
 
@@ -67,7 +73,45 @@ The system ensures a smooth and transparent event registration workflow with sec
 ```bash
 # Clone the repository
 git clone [YOUR_REPO_URL]
+
 cd Eventify/backend
 
 # Install dependencies
 npm install
+
+# Create .env file for environment varibles
+
+# Clone the repository
+git clone [YOUR_REPO_URL]
+cd Eventify/backend
+
+# Install dependencies
+npm install
+
+# Create a .env file in the backend directory and add the following:
+PORT=5000
+NODE_ENV=development
+MONGO_URI=[YOUR_MONGO_DB_CONNECTION_STRING]
+JWT_SECRET=[A_RANDOM_LONG_STRING_FOR_SECURITY]
+JWT_EXPIRY=[TOKEN_EXPIRY_DETAILS]
+SALT_ROUNDS=[NO_OF_ROUNDS_FOR_PASSWORD_HASHING]
+
+# Run the server
+npm start
+```
+
+### Frontend Setup
+
+```bash
+cd ../frontend
+
+#Update the api.tsx file by give your baseUrl
+baseUrl=[BASE_URL]
+
+# Install dependencies
+npm install
+
+# Run the application
+npm run dev
+
+```
