@@ -31,7 +31,7 @@ export const registerUser = async (req, res) => {
         .status(400)
         .json({ message: "Tickets are filled or event not found." });
     }
-    const status = event.approvalMode === "auto" ? "Approved" : "Pending";
+    const status = event.approvalMethod === "auto" ? "Approved" : "Pending";
     const registration = await Registration.create({
       event: eventId,
       name,
@@ -105,7 +105,7 @@ export const updateRegistration = async (req, res) => {
 
 export const getTicketDetails = async (req, res) => {
   const { id } = req.params;
-
+  console.log("Get ticket details for id:", id);
   if (!id) {
     return res.status(400).json({ message: "Please provide ticket id." });
   }
@@ -123,6 +123,46 @@ export const getTicketDetails = async (req, res) => {
     if (ticket.status !== "Approved") {
       return res.status(403).json({
         message: `Ticket status is ${ticket.status}. Awaiting organizer approval.`,
+      });
+    }
+
+    return res.json({
+      ticketId: ticket._id,
+      name: ticket.name,
+      email: ticket.email,
+      status: ticket.status,
+      event: ticket.event,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+export const getTicketId = async (req, res) => {
+  const { eventId, email } = req.params;
+  console.log(eventId, email);
+  if (!eventId || !email) {
+    return res
+      .status(400)
+      .json({ message: "Please provide eventId and email." });
+  }
+
+  try {
+    const ticket = await Registration.findOne({
+      event: eventId,
+      email: email,
+    }).populate("event", "title description date venue");
+
+    if (!ticket) {
+      return res.status(404).json({ message: "Ticket not found." });
+    }
+
+    if (ticket.status !== "Approved") {
+      return res.status(200).json({
+        ticketId: ticket._id,
+        status: ticket.status,
+        message: `Ticket status is ${ticket.status}. Awaiting organizer action.`,
       });
     }
 

@@ -1,6 +1,6 @@
 import EventModel from "../models/event.js";
 import RegistrationModel from "../models/registration.js";
-
+import mongoose from "mongoose";
 //POST create event
 export const createEvent = async (req, res) => {
   const { title, description, date, venue, ticketLimit, approvalMethod } =
@@ -38,7 +38,18 @@ export const createEvent = async (req, res) => {
 //GET to get all events of an organizer
 export const getMyEvents = async (req, res) => {
   try {
-    const events = await EventModel.find({ organizer: req.user.id });
+    const organizerId = req.user.id;
+
+    // 🎯 CRITICAL FIX: Validate the ID format BEFORE querying Mongoose
+    if (!organizerId || !mongoose.isValidObjectId(organizerId)) {
+      console.log("Invalid organizer ID received:", organizerId);
+      // If the ID is bad, we cannot cast it, hence the error.
+      // Return 400 early to prevent the server crash.
+      return res
+        .status(400)
+        .json({ message: "Invalid organizer ID provided by token." });
+    }
+    const events = await EventModel.find({ organizer: organizerId.toString() });
     return res.status(200).json(events);
   } catch (error) {
     console.log("Error retrieving all events of an organizer:" + error);

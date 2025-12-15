@@ -1,4 +1,3 @@
-import UserModel from "../models/user.js";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 
@@ -15,7 +14,7 @@ export const protect = async (req, res, next) => {
   try {
     const data = jwt.verify(token, process.env.JWT_SECRET);
     req.user = data.user;
-    next();
+    return next();
   } catch (error) {
     if (error.name === "TokenExpiredError") {
       return res
