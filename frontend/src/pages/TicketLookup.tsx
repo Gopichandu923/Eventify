@@ -22,7 +22,6 @@ const TicketLookup: React.FC = () => {
 
     try {
       const res = await getTicketId(eventId, email);
-      console.log("Retrieved Ticket ID:", res.data);
       navigate(`/tickets/${res.data.ticketId}`);
     } catch (err: any) {
       setError(
@@ -35,24 +34,19 @@ const TicketLookup: React.FC = () => {
 
   return (
     <div className="max-w-md mx-auto mt-20 p-8 bg-white shadow-3xl rounded-xl border-t-4 border-indigo-500 transform hover:shadow-4xl transition duration-300">
-           {" "}
       <h2 className="text-3xl font-extrabold text-center text-indigo-700 mb-2">
-                🔍 Retrieve Ticket      {" "}
+        🔍 Retrieve Ticket
       </h2>
-           {" "}
       <p className="text-center text-gray-500 mb-6 text-sm">
-                Enter the email used during registration for event:{" "}
-        <span className="font-semibold">{eventId}</span>     {" "}
+        Enter the email used during registration for event:
+        <span className="font-semibold">{eventId}</span>
       </p>
-           {" "}
       {error && (
         <p className="mb-4 text-sm text-red-700 text-center bg-red-100 border border-red-300 p-3 rounded-lg animate-pulse">
-                    {error}       {" "}
+          {error}
         </p>
       )}
-           {" "}
       <form onSubmit={handleSubmit} className="space-y-6">
-               {" "}
         <input
           type="email"
           value={email}
@@ -61,7 +55,6 @@ const TicketLookup: React.FC = () => {
           required
           className="w-full p-4 border border-gray-300 rounded-xl transition duration-150 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
         />
-               {" "}
         <button
           type="submit"
           disabled={loading}
@@ -71,11 +64,9 @@ const TicketLookup: React.FC = () => {
               : "bg-indigo-600 hover:bg-indigo-700 text-white"
           }`}
         >
-                    {loading ? "Searching..." : "Retrieve Ticket"}       {" "}
+          {loading ? "Searching..." : "Retrieve Ticket"}
         </button>
-             {" "}
       </form>
-         {" "}
     </div>
   );
 };

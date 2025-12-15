@@ -54,19 +54,15 @@ const CreateEvent: React.FC = () => {
 
   return (
     <div className="max-w-2xl mx-auto mt-8 p-6 bg-white shadow-xl rounded-lg border border-gray-200">
-           {" "}
       <h2 className="text-3xl font-bold text-gray-800 mb-6 border-b pb-3">
-                Create New Event        {" "}
+        Create New Event
       </h2>
-           {" "}
       {error && (
         <p className="text-red-500 text-center mb-4 p-2 bg-red-50 rounded">
-                    {error}       {" "}
+          {error}
         </p>
       )}
-           {" "}
       <form onSubmit={onSubmit} className="flex flex-col space-y-4">
-               {" "}
         <input
           type="text"
           placeholder="Title"
@@ -76,7 +72,6 @@ const CreateEvent: React.FC = () => {
           required
           className="p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
         />
-               {" "}
         <textarea
           placeholder="Description"
           name="description"
@@ -86,8 +81,7 @@ const CreateEvent: React.FC = () => {
           rows={4}
           className="p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
         ></textarea>
-                <label className="font-medium text-gray-700">Date:</label>     
-         {" "}
+        <label className="font-medium text-gray-700">Date:</label>
         <input
           type="date"
           name="date"
@@ -96,7 +90,6 @@ const CreateEvent: React.FC = () => {
           required
           className="p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
         />
-               {" "}
         <input
           type="text"
           placeholder="Venue"
@@ -106,9 +99,7 @@ const CreateEvent: React.FC = () => {
           required
           className="p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
         />
-               {" "}
-        <label className="font-medium text-gray-700">Ticket Limit:</label>     
-         {" "}
+        <label className="font-medium text-gray-700">Ticket Limit:</label>
         <input
           type="number"
           placeholder="Ticket Limit"
@@ -119,19 +110,16 @@ const CreateEvent: React.FC = () => {
           min="1"
           className="p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
         />
-               {" "}
-        <label className="font-medium text-gray-700">Approval Mode:</label>     
-         {" "}
+        <label className="font-medium text-gray-700">Approval Mode:</label>
         <select
           name="approvalMethod"
           value={formData.approvalMethod}
           onChange={onChange}
           className="p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-white"
         >
-                    <option value="auto">Automatic (Auto-approval)</option>     
-              <option value="manual">Manual (Organizer approves)</option>       {" "}
+          <option value="auto">Automatic (Auto-approval)</option>
+          <option value="manual">Manual (Organizer approves)</option>       {" "}
         </select>
-               {" "}
         <button
           type="submit"
           disabled={loading}
@@ -141,11 +129,9 @@ const CreateEvent: React.FC = () => {
               : "bg-indigo-600 hover:bg-indigo-700 text-white"
           }`}
         >
-                    {loading ? "Creating..." : "Create Event"}       {" "}
+          {loading ? "Creating..." : "Create Event"}
         </button>
-             {" "}
       </form>
-         {" "}
     </div>
   );
 };
