@@ -47,7 +47,9 @@ export const getTicketDetails = async (ticketId: string) => {
   return await api.get(`/registrations/tickets/${ticketId}`);
 };
 export const getTicketId = async (eventId: string, email: string) => {
-  return await api.get(`/registrations/tickets/${eventId}/lookup/${email}`);
+  return await api.get(`/registrations/tickets/lookup/`, {
+    params: { eventId, email },
+  });
 };
 
 export const updateRegistrationStatus = async (
