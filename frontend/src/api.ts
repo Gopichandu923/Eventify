@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: "https://eventify-backend-flax.vercel.app/api",
 });
 
 // Helper for token header
