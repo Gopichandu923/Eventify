@@ -11,7 +11,7 @@ import EventRegistrations from "./pages/EventRegistrations.tsx";
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
 import TicketLookup from "./pages/TicketLookup.tsx";
 
-const App = () => {
+const App: React.FC = () => {
   return (
     <Router>
       <div className="min-h-screen bg-gray-50">
