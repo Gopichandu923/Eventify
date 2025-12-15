@@ -12,5 +12,5 @@ const router = express.Router();
 router.post("/", registerUser);
 router.put("/:id/status", protect, updateRegistration);
 router.get("/tickets/:id", getTicketDetails);
-router.get("/tickets/:eventId/lookup/", getTicketId);
+router.get("/tickets/:eventId/lookup/:email", getTicketId);
 export default router;
