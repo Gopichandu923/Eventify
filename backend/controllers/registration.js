@@ -140,7 +140,7 @@ export const getTicketDetails = async (req, res) => {
 };
 
 export const getTicketId = async (req, res) => {
-  const { eventId, email } = req.params;
+  const { eventId, email } = req.query;
   console.log(eventId, email);
   if (!eventId || !email) {
     return res
