@@ -4,42 +4,63 @@ import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Home from "./pages/Home.tsx";
 import PublicEvent from "./pages/PublicEvent.tsx";
 import TicketPage from "./pages/TicketPage.tsx";
-import OrganizeAuth from "./pages/OrganizerAuth.tsx";
-import OrganizeDashboard from "./pages/OrganizerDashboard.tsx";
+import OrganizerAuth from "./pages/OrganizerAuth.tsx";
+import OrganizerDashboard from "./pages/OrganizerDashboard.tsx";
 import CreateEvent from "./pages/CreateEvent.tsx";
-import EventRegistration from "./pages/EventRegistrations.tsx";
+import EventRegistrations from "./pages/EventRegistrations.tsx";
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
+import TicketLookup from "./pages/TicketLookup.tsx";
 
 const App = () => {
   return (
     <Router>
-      <div>
-        <nav>
-          <Link to="/">Home</Link>
-          <Link to="/organizer/auth">Organizer Portal</Link>
+      <div className="min-h-screen bg-gray-50">
+        <nav className="bg-white shadow p-4 flex items-center justify-between">
+          <div className="text-xl font-bold text-indigo-600">Eventify</div>
+          <div className="space-x-4">
+            <Link
+              to="/"
+              className="text-gray-600 hover:text-indigo-600 transition duration-150"
+            >
+              Home
+            </Link>
+            <Link
+              to="/organizer/auth"
+              className="text-gray-600 hover:text-indigo-600 transition duration-150"
+            >
+              Organizer Portal
+            </Link>
+          </div>
         </nav>
-        <Routes>
-          <Route path="/" element={<Home />}></Route>
-          <Route path="/event" element={<PublicEvent />}></Route>
-          <Route path="/ticket/:tickedId" element={<TicketPage />}></Route>
+        <div className="container mx-auto p-6">
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/events/:id" element={<PublicEvent />} />
+            <Route path="/tickets/:ticketId" element={<TicketPage />} />
+            <Route path="/events/:eventId/tickets" element={<TicketLookup />} />
 
-          <Route path="/organizer/auth" element={<OrganizeAuth />}></Route>
-          <Route element={<ProtectedRoute />}>
+            {/* Organizer Auth */}
+            <Route path="/organizer/auth" element={<OrganizerAuth />} />
+
+            {/* Protected Routes */}
+            <Route element={<ProtectedRoute />}>
+              <Route
+                path="/organizer/dashboard"
+                element={<OrganizerDashboard />}
+              />
+              <Route path="/organizer/create-event" element={<CreateEvent />} />
+              <Route
+                path="/organizer/registrations/:eventId"
+                element={<EventRegistrations />}
+              />
+            </Route>
             <Route
-              path="/organizer/dashboard"
-              element={<OrganizeDashboard />}
-            ></Route>
-            <Route
-              path="/organizer/create-event"
-              element={<CreateEvent />}
-            ></Route>
-            <Route
-              path="/organizer/registrations/:eventId"
-              element={<EventRegistration />}
-            ></Route>
-          </Route>
-          <Route path="*" element={<h1>404 Not Found</h1>}></Route>
-        </Routes>
+              path="*"
+              element={<h1 className="text-2xl text-red-600">404 Not Found</h1>}
+            />
+          </Routes>
+        </div>
       </div>
     </Router>
   );
