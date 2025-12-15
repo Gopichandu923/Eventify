@@ -12,7 +12,6 @@ export const registerUser = async (req, res) => {
       .json({ message: "Please provide name, email and eventId." });
   }
   try {
-    // 1. Prevent duplicate registration (same event + email)
     const existingRegistration = await Registration.findOne({
       event: eventId,
       email,
@@ -105,7 +104,6 @@ export const updateRegistration = async (req, res) => {
 
 export const getTicketDetails = async (req, res) => {
   const { id } = req.params;
-  console.log("Get ticket details for id:", id);
   if (!id) {
     return res.status(400).json({ message: "Please provide ticket id." });
   }
@@ -141,7 +139,6 @@ export const getTicketDetails = async (req, res) => {
 
 export const getTicketId = async (req, res) => {
   const { eventId, email } = req.query;
-  console.log(eventId, email);
   if (!eventId || !email) {
     return res
       .status(400)
