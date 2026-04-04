@@ -49,8 +49,8 @@ const EventRegistrations: React.FC = () => {
     setLoading(true);
     try {
       const res = await getEventRegistrations(eventId);
-      setEvent(res.data.event);
-      setRegistrations(res.data.registrations);
+      setEvent(res.data?.event || null);
+      setRegistrations(Array.isArray(res.data?.registrations) ? res.data.registrations : []);
       setError(null);
     } catch (err: any) {
       setError(
