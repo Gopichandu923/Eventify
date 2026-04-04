@@ -1,117 +1,90 @@
-# 🎟️ Eventify – Event Registration & Digital Ticketing System
+# 🎟️ Eventify – Premium Event Registration & Digital Ticketing
 
-Eventify is a full-stack **MERN** application designed to streamline event creation, attendee registration, and digital ticket management. It offers a secure organizer dashboard for event and registration approvals, along with a simple public flow for attendees to register and retrieve their tickets.
-
----
-
-## 🚀 Project Overview
-
-Eventify allows:
-
-- **Organizers** to create events, review registrations, and approve or reject attendees.
-- **Attendees** to register for events and retrieve their unique digital tickets using their email and event ID.
-
-The system ensures a smooth and transparent event registration workflow with secure authentication and easy ticket access.
+**Eventify** is a professional-grade **MERN** stack application designed to automate event lifecycle management—from secure organizer creation to attendee registration and instant QR-based entry verification.
 
 ---
 
-## ✨ Key Features
+## 🚀 Vision
+Eventify bridges the gap between digital registration and physical event entry. It provides organizers with a powerful dashboard to manage attendee flow and participants with a premium, print-ready ticketing experience.
 
-### 👨‍💼 For Organizers (Protected Routes)
+---
 
-- **Event Management**
-  - Create, view, and manage events (title, venue, date).
-- **Registration Review**
-  - View pending registrations.
-  - Manually approve or reject attendee registrations.
-- **Authentication**
-  - Secure JWT-based login system for organizers.
+## ✨ Advanced Features
 
-### 👥 For Attendees (Public Access)
+### 👨‍💼 For Organizers (Command Center)
+- **Unified Authentication**: Login via traditional email/password or **Google OAuth** for a seamless experience.
+- **Smart Dashboard**: Manage multiple events with real-time "Tickets Left" tracking and automated sorting (upcoming events first).
+- **Dual Approval Flow**:
+  - **Auto**: Instant ticket generation upon registration.
+  - **Manual**: Review attendee details before granting access.
+- **Entry Verification Scanner**: Built-in QR code validator. Organizers can scan attendee tickets with any mobile device to get an instant **VERIFIED** or **INVALID** status.
+- **Session Security**: Advanced `httpOnly` refresh token strategy ensures long-lasting but extremely secure sessions.
 
-- **Public Event Registration**
-  - Simple registration form.
-  - Tickets are created with a default **Pending** status.
-- **Ticket Lookup**
-  - Retrieve ticket details using **email + event ID**.
-- **Digital Ticket Page**
-  - View ticket and event details.
-  - Print or download **PDF tickets** for approved registrations.
+### 👥 For Attendees
+- **Premium Digital Tickets**: High-fidelity "Admit One" tickets featuring:
+  - **Environment-Aware QR Codes**: Scannable codes for event entry.
+  - **Perforated Stub Design**: A professional look optimized for both mobile and high-quality printing.
+- **Live Event Status**: Instant feedback on **Completed** (past) events and **Sold Out** status.
+- **Ticket Lookup**: Lost your link? Retrieve your unique ticket anytime using your email and event ID.
 
 ---
 
 ## 🛠️ Tech Stack
 
-### Frontend (Client)
-
-- **React** – UI development
-- **TypeScript** – Type safety and maintainability
-- **React Router** – Page navigation
-- **Axios** – API communication
-- **Tailwind CSS** – Utility-first styling
-
-### Backend (API)
-
-- **Node.js / Express** – Server framework
-- **MongoDB / Mongoose** – Database and ODM
-- **JWT (JSON Web Tokens)** – Authentication & authorization
-- **Bcrypt** – Secure password hashing
+- **Frontend**: React 18, TypeScript, Tailwind CSS, Vite.
+- **Backend**: Node.js, Express, Mongoose.
+- **Security**: JWT (Access + Refresh Tokens), Bcrypt, Google Auth Library, Cookie-Parser.
+- **Tools**: QR Code SVG Generation (`qrcode.react`), Axios Interceptors (Zero-touch token rotation).
 
 ---
 
 ## 💻 Installation & Setup
 
-### Prerequisites
+### 1️⃣ Backend Setup
+```bash
+cd backend
+npm install
 
-- **Node.js** v18+
-- **MongoDB** (Local or MongoDB Atlas)
+# Create .env file with the following:
+PORT=5000
+NODE_ENV=development
+MONGO_URI=your_mongodb_uri
+JWT_SECRET=your_access_secret
+REFRESH_TOKEN_SECRET=your_refresh_secret
+GOOGLE_CLIENT_ID=your_google_id
+JWT_EXPIRY=15m
+JWT_REFRESH_EXPIRY=7d
+SALT_ROUNDS=10
+```
+`npm start` to run the server.
+
+### 2️⃣ Frontend Setup
+```bash
+cd frontend
+npm install
+
+# Configure API
+# Ensure src/api.ts points to http://localhost:5000/api for local development.
+
+npm run dev
+```
 
 ---
 
-### 1️⃣ Backend Setup
+## 🛡️ Security Architecture
+Eventify uses a **Silent Token Refresh** architecture:
+1. **Access Token**: Short-lived (15m), stored in memory/localStorage for API calls.
+2. **Refresh Token**: Long-lived (7d), stored in a **Secure, HttpOnly Cookie**.
+3. **Axios Interceptors**: Automatically detect `401 Unauthorized` errors, call the `/refresh` endpoint, and retry the original request without the user ever seeing a login screen.
 
-```bash
-# Clone the repository
-git clone [YOUR_REPO_URL]
+---
 
-cd Eventify/backend
+## 🎫 QR Verification Workflow
+Organizers can verify tickets at the gate:
+1. Points a smartphone camera at the attendee's QR code.
+2. Clicks the scanned URL.
+3. The app instantly checks the database and displays a **VERIFIED** badge with the attendee's name and event details.
 
-# Install dependencies
-npm install
+---
 
-# Create .env file for environment varibles
-
-# Clone the repository
-git clone [YOUR_REPO_URL]
-cd Eventify/backend
-
-# Install dependencies
-npm install
-
-# Create a .env file in the backend directory and add the following:
-PORT=5000
-NODE_ENV=development
-MONGO_URI=[YOUR_MONGO_DB_CONNECTION_STRING]
-JWT_SECRET=[A_RANDOM_LONG_STRING_FOR_SECURITY]
-JWT_EXPIRY=[TOKEN_EXPIRY_DETAILS]
-SALT_ROUNDS=[NO_OF_ROUNDS_FOR_PASSWORD_HASHING]
-
-# Run the server
-npm start
-```
-
-### Frontend Setup
-
-```bash
-cd ../frontend
-
-#Update the api.tsx file by give your baseUrl
-baseUrl=[BASE_URL]
-
-# Install dependencies
-npm install
-
-# Run the application
-npm run dev
-
-```
+Proudly built with a focus on performance, security, and premium user experience. 🚀
