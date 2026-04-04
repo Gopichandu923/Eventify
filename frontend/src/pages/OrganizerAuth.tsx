@@ -59,7 +59,7 @@ const OrganizerAuth: React.FC = () => {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-start justify-center pt-2 px-4 relative overflow-hidden">
+    <div className="min-h-[70vh] md:min-h-[80vh] flex items-start justify-center pt-2 md:pt-4 px-4 relative overflow-hidden">
       {/* Background Decorations */}
       <div className="absolute top-0 left-0 w-full h-full -z-10 bg-[#0a0a0c]"> </div>
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-indigo-500/5 blur-[120px] -z-10 animate-pulse-slow"></div>
@@ -67,22 +67,20 @@ const OrganizerAuth: React.FC = () => {
       <div className="w-full max-w-md glass-card rounded-[2rem] overflow-hidden border-white/10 shadow-2xl relative">
         <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-5 text-center text-white relative">
           <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 blur-3xl -mr-12 -mt-12"></div>
-          <h2 className="text-2xl font-black tracking-tight mb-0.5">Eventify Hub</h2>
+          <h2 className="text-2xl font-black tracking-tight mb-0.5 uppercase italic">Eventify Hub</h2>
         </div>
 
         <div className="p-5 space-y-4">
           <div className="flex bg-white/5 border border-white/10 p-1 rounded-xl mb-1">
             <button
               onClick={() => setIsLogin(true)}
-              className={`flex-1 py-2.5 px-4 rounded-lg font-black text-[10px] uppercase tracking-widest transition-all ${isLogin ? "bg-white text-indigo-600 shadow-xl" : "text-gray-500 hover:text-white"
-                }`}
+              className={`flex-1 py-2.5 px-4 rounded-lg font-black text-[10px] uppercase tracking-widest transition-all ${isLogin ? "bg-white text-indigo-600 shadow-xl" : "text-gray-500 hover:text-white"}`}
             >
               Sign In
             </button>
             <button
               onClick={() => setIsLogin(false)}
-              className={`flex-1 py-2.5 px-4 rounded-lg font-black text-[10px] uppercase tracking-widest transition-all ${!isLogin ? "bg-white text-indigo-600 shadow-xl" : "text-gray-500 hover:text-white"
-                }`}
+              className={`flex-1 py-2.5 px-4 rounded-lg font-black text-[10px] uppercase tracking-widest transition-all ${!isLogin ? "bg-white text-indigo-600 shadow-xl" : "text-gray-500 hover:text-white"}`}
             >
               Register
             </button>
@@ -132,7 +130,7 @@ const OrganizerAuth: React.FC = () => {
                     placeholder="Full Name"
                     value={formData.name}
                     onChange={onChange}
-                    required
+                    required={!isLogin}
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all text-white text-sm"
                   />
                 </div>
@@ -186,9 +184,6 @@ const OrganizerAuth: React.FC = () => {
               </svg>
               Secure Connection Established
             </div>
-            <p className="text-[10px] text-gray-600 uppercase tracking-widest opacity-50">
-              © Eventify System v4.0.2
-            </p>
           </div>
         </div>
       </div>

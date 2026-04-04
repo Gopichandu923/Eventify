@@ -79,7 +79,7 @@ const TicketVerification: React.FC = () => {
   const isApproved = ticket.status === "Approved";
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-4 px-4 relative overflow-hidden">
+    <div className="min-h-[70vh] md:min-h-screen flex items-start justify-center pt-2 md:pt-4 px-4 relative overflow-hidden">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-indigo-500/5 blur-[120px] -z-10 animate-pulse-slow"></div>
 
       <div className="w-full max-w-md glass-card rounded-[2.5rem] overflow-hidden border-white/10 shadow-2xl relative">

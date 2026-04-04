@@ -82,30 +82,23 @@ const Home: React.FC = () => {
   return (
     <div className="space-y-12">
       {/* Hero Section */}
-      <section className="relative py-12 px-6 rounded-[2.5rem] overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/20 to-purple-600/20 z-0"></div>
-        <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 blur-[100px] -mr-48 -mt-48 animate-pulse-slow"></div>
-        
-        <div className="relative z-10 max-w-4xl mx-auto text-center">
-          <h1 className="text-5xl md:text-6xl font-black tracking-tight mb-4 bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
-            Unforgettable <br /> Experiences Await
+      <section className="relative h-48 md:h-64 bg-gradient-to-br from-indigo-900 to-slate-900 overflow-hidden rounded-[2rem] md:rounded-[3rem] shadow-2xl">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
+        <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/20 blur-[80px] -mr-40 -mt-40 animate-pulse-slow"></div>
+
+        <div className="absolute inset-0 p-6 md:p-16 flex flex-col justify-center items-center text-center">
+          <h1 className="text-3xl md:text-6xl font-black tracking-tight mb-4 text-white uppercase italic leading-tight">
+            Unforgettable <br className="hidden md:block" /> Experiences
           </h1>
-          <p className="text-lg text-indigo-100/70 mb-8 max-w-2xl mx-auto leading-relaxed">
-            Discover, register, and attend the most exciting events in your city.
+          <p className="text-[10px] md:text-lg text-indigo-100/70 max-w-xl uppercase tracking-[0.3em] font-black opacity-60">
+            Node Network Registry • City Port 84
           </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <button className="px-6 py-3.5 bg-white text-indigo-600 font-bold rounded-2xl hover:bg-indigo-50 transition-all transform hover:scale-105 shadow-xl shadow-white/5 text-sm uppercase tracking-widest">
-              Explore Events
-            </button>
-            <Link to="/organizer/auth" className="px-6 py-3.5 bg-white/5 hover:bg-white/10 text-white font-bold rounded-2xl border border-white/10 transition-all backdrop-blur-md text-sm uppercase tracking-widest">
-              Host an Event
-            </Link>
-          </div>
         </div>
       </section>
 
       {/* Events Grid Section */}
-      <section>
+      <section className="px-4 md:px-0">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
           <div>
             <h2 className="text-3xl font-black text-white uppercase tracking-tight">Upcoming Events</h2>
@@ -133,18 +126,18 @@ const Home: React.FC = () => {
                 <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-600/5 blur-[60px] group-hover:bg-indigo-600/10 transition-all"></div>
                 
                 <div className="p-8 relative z-10 flex flex-col h-full">
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="flex gap-2">
-                      <div className="bg-indigo-600/10 text-indigo-400 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border border-indigo-600/10">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex flex-wrap gap-1.5">
+                      <div className="bg-indigo-600/10 text-indigo-400 px-2.5 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border border-indigo-600/10">
                         Entertainment
                       </div>
                       {new Date(event.date) < new Date() && (
-                        <div className="bg-rose-500/10 text-rose-400 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border border-rose-500/10">
+                        <div className="bg-rose-500/10 text-rose-400 px-2.5 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border border-rose-500/10">
                           Completed
                         </div>
                       )}
                     </div>
-                    <div className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border ${
+                    <div className={`px-2.5 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border shrink-0 ${
                       event.availableTickets > 0 
                         ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/10' 
                         : 'bg-rose-500/10 text-rose-400 border-rose-500/10'
@@ -158,22 +151,19 @@ const Home: React.FC = () => {
                   </h3>
 
                   <div className="space-y-4 mb-8 flex-grow">
-                    <div className="flex items-center text-gray-500">
-                      <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center mr-4 group-hover:bg-indigo-600/10 transition-colors">
-                        <svg className="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="flex flex-wrap gap-4 text-gray-400 text-[10px] font-black uppercase tracking-[0.15em]">
+                      <div className="flex items-center gap-1.5">
+                        <svg className="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
+                        {new Date(event.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                       </div>
-                      <span className="text-sm font-bold text-gray-300">{new Date(event.date).toLocaleDateString(undefined, { dateStyle: 'long' })}</span>
-                    </div>
-
-                    <div className="flex items-center text-gray-500">
-                      <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center mr-4 group-hover:bg-purple-600/10 transition-colors">
-                        <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="flex items-center gap-1.5">
+                        <svg className="w-3.5 h-3.5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                         </svg>
+                        {event.venue}
                       </div>
-                      <span className="text-sm font-bold text-gray-300">{event.venue}</span>
                     </div>
                   </div>
 

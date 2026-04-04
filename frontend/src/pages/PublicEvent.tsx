@@ -81,7 +81,7 @@ const PublicEvent: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#0a0a0c]">
+      <div className="flex items-center justify-center min-h-[60vh] bg-[#0a0a0c]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
           <p className="text-xs font-black text-gray-500 uppercase tracking-widest">Hydrating Details...</p>
@@ -128,16 +128,16 @@ const PublicEvent: React.FC = () => {
   const isExpired = new Date(event.date) < new Date();
 
   return (
-    <div className="max-w-5xl mx-auto pb-6">
-      <div className="glass-card rounded-[3rem] overflow-hidden shadow-2xl border-white/5">
+    <div className="max-w-5xl mx-auto pb-6 px-4 md:px-0">
+      <div className="glass-card rounded-[2rem] md:rounded-[3rem] overflow-hidden shadow-2xl border-white/5">
         {/* Dynamic Header */}
-        <div className="relative h-45 md:h-50 bg-gradient-to-br from-indigo-900 to-slate-900 overflow-hidden">
+        <div className="relative h-44 md:h-52 bg-gradient-to-br from-indigo-900 to-slate-900 overflow-hidden">
           {/* Background Pattern */}
           <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
-          <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/20 blur-[100px] -mr-48 -mt-48 animate-pulse-slow"></div>
-
-          <div className="absolute inset-0 p-6 md:p-10 flex flex-col justify-end">
-            <div className="flex flex-wrap gap-2 mb-4">
+          <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/20 blur-[80px] -mr-40 -mt-40 animate-pulse-slow"></div>
+          
+          <div className="absolute inset-0 p-5 md:p-10 flex flex-col justify-end">
+            <div className="flex flex-wrap gap-1.5 mb-3">
               {isExpired ? (
                 <span className="px-3 py-1 bg-rose-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full">
                   Completed
@@ -151,20 +151,20 @@ const PublicEvent: React.FC = () => {
                 {event.approvalMode === "auto" ? "Instant" : "Review Req."}
               </span>
             </div>
-
-            <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight mb-3 leading-tight uppercase">
+            
+            <h1 className="text-2xl md:text-4xl font-black text-white tracking-tight mb-2 leading-tight uppercase truncate-2-lines">
               {event.title}
             </h1>
-
-            <div className="flex flex-wrap gap-5 text-gray-400 text-xs font-bold uppercase tracking-widest">
-              <div className="flex items-center gap-2">
-                <svg className="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            
+            <div className="flex flex-wrap gap-4 text-gray-400 text-[10px] font-black uppercase tracking-[0.15em]">
+              <div className="flex items-center gap-1.5">
+                <svg className="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
                 {new Date(event.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
               </div>
-              <div className="flex items-center gap-2">
-                <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex items-center gap-1.5">
+                <svg className="w-3.5 h-3.5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 </svg>
                 {event.venue}
@@ -204,7 +204,7 @@ const PublicEvent: React.FC = () => {
 
           {/* Registration Section */}
           <div className="p-6 md:p-10 bg-white/[0.01]">
-            <div className="sticky top-24">
+            <div className="sticky top-16 md:top-24">
               <div className="mb-8">
                 <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-1.5">Availability Cluster</p>
                 <div className="flex items-end gap-2">
@@ -216,10 +216,11 @@ const PublicEvent: React.FC = () => {
               </div>
 
               {message && (
-                <div className={`p-4 mb-6 rounded-xl border text-[10px] font-black uppercase tracking-widest ${ticketId
-                  ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
-                  : "bg-rose-500/10 border-rose-500/20 text-rose-400"
-                  }`}>
+                <div className={`p-4 mb-6 rounded-xl border text-[10px] font-black uppercase tracking-widest ${
+                  ticketId 
+                    ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" 
+                    : "bg-rose-500/10 border-rose-500/20 text-rose-400"
+                }`}>
                   <div className="flex items-start gap-3">
                     <div className={`w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center ${ticketId ? 'bg-emerald-500' : 'bg-rose-500'}`}>
                       <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -230,7 +231,7 @@ const PublicEvent: React.FC = () => {
                   </div>
                   {ticketId && (
                     <div className="mt-3 pt-3 border-t border-emerald-500/10 text-center">
-                      <Link
+                      <Link 
                         to={`/tickets/${ticketId}`}
                         className="block w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-900 rounded-xl transition-all"
                       >
@@ -274,14 +275,14 @@ const PublicEvent: React.FC = () => {
                     Initialize Access
                   </button>
                   <p className="text-[8px] text-center text-gray-700 font-black uppercase tracking-[0.3em] mt-4">
-                    Registry Encyption: AES-256
+                    Registry Encryption: AES-256
                   </p>
                 </form>
               )}
 
               {(isSoldOut || isExpired) && !ticketId && (
                 <div className="text-center p-6 border border-white/5 rounded-3xl bg-white/2">
-                  <div className="w-12 h-12 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                   <div className="w-12 h-12 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-3">
                     <svg className="w-6 h-6 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>

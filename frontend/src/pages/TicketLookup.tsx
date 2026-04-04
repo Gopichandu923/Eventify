@@ -33,17 +33,17 @@ const TicketLookup: React.FC = () => {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-4 relative overflow-hidden">
+    <div className="min-h-[70vh] md:min-h-screen flex items-start justify-center pt-2 md:pt-4 px-4 relative overflow-hidden">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-indigo-500/5 blur-[120px] -z-10 animate-pulse-slow"></div>
 
       <div className="w-full max-w-md glass-card rounded-[2.5rem] overflow-hidden border-white/10 shadow-2xl relative">
-        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-8 text-center text-white relative">
+        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-5 md:p-8 text-center text-white relative">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 blur-3xl -mr-16 -mt-16"></div>
-          <h2 className="text-3xl font-black tracking-tight mb-1 font-mono">RETRIEVE ACCESS</h2>
-          <p className="text-indigo-100/70 text-xs font-medium uppercase tracking-widest leading-relaxed">Identity verification required</p>
+          <h2 className="text-xl md:text-3xl font-black tracking-tight mb-0.5 uppercase italic">RETRIEVE ACCESS</h2>
+          <p className="text-indigo-100/70 text-[9px] md:text-xs font-black uppercase tracking-[0.2em] leading-relaxed">Identity verification</p>
         </div>
 
-        <div className="p-8 md:p-10 space-y-8">
+        <div className="p-5 md:p-10 space-y-5 md:space-y-8">
           <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center">
              <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Target Event</p>
              <p className="text-xs font-mono font-bold text-gray-300 break-all">{eventId}</p>
