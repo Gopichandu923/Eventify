@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { getTicketDetails } from "../api";
+import { QRCodeSVG } from "qrcode.react";
 
 interface EventDetails {
   title: string;
@@ -32,13 +33,14 @@ const TicketPage: React.FC = () => {
 
       try {
         const res = await getTicketDetails(ticketId);
+        console.log(res)
         setTicket(res.data);
         setError(null);
       } catch (err: any) {
         setError(
           err.response?.data?.message ||
-            err.message ||
-            "Failed to load ticket details."
+          err.message ||
+          "Failed to load ticket details."
         );
       } finally {
         setLoading(false);
@@ -83,76 +85,149 @@ const TicketPage: React.FC = () => {
     statusColors[ticket.status] || "bg-gray-100 text-gray-700";
 
   return (
-    <div className="max-w-4xl mx-auto mt-10 p-8 bg-white shadow-2xl rounded-xl border-t-8 border-indigo-600">
-      <div className="flex justify-between items-start mb-6">
-        <h2 className="text-3xl font-extrabold text-gray-900">
-          Your Event Ticket
-        </h2>
-        <span
-          className={`px-4 py-2 rounded-full font-bold uppercase tracking-wide ${statusClasses}`}
-        >
-          {ticket.status}
-        </span>
+    <div className="max-w-3xl mx-auto mt-10 relative">
+      {/* Background decoration for premium feel */}
+      <div className="absolute inset-0 bg-indigo-600 rounded-3xl transform rotate-1 opacity-10 -z-10"></div>
+      <div className="absolute inset-0 bg-purple-600 rounded-3xl transform -rotate-1 opacity-10 -z-10"></div>
+
+      <div className="bg-white shadow-2xl rounded-3xl overflow-hidden border border-gray-100 flex flex-col md:flex-row">
+        {/* Left Side: Ticket Main Content */}
+        <div className="flex-1 p-8">
+          <div className="flex justify-between items-start mb-8">
+            <div>
+              <h2 className="text-3xl font-black text-gray-900 tracking-tight mb-1">
+                ADMIT ONE
+              </h2>
+              <p className="text-indigo-600 font-bold uppercase tracking-widest text-sm">
+                Eventify Premium Ticket
+              </p>
+            </div>
+            <span
+              className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest shadow-sm ${statusClasses}`}
+            >
+              {ticket.status}
+            </span>
+          </div>
+
+          <div className="space-y-6">
+            <section>
+              <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2 border-b border-gray-100 pb-1">
+                Attendee
+              </h3>
+              <p className="text-xl font-bold text-gray-800">{ticket.name}</p>
+              <p className="text-gray-500 text-sm truncate">{ticket.email}</p>
+            </section>
+
+            <section>
+              <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2 border-b border-gray-100 pb-1">
+                Event Information
+              </h3>
+              <p className="text-2xl font-black text-indigo-900 leading-tight mb-2">
+                {ticket.event.title}
+              </p>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-[10px] font-black text-gray-400 uppercase mb-1">
+                    Date
+                  </p>
+                  <p className="font-bold text-gray-800">
+                    {new Date(ticket.event.date).toLocaleDateString(undefined, {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-black text-gray-400 uppercase mb-1">
+                    Venue
+                  </p>
+                  <p className="font-bold text-gray-800 truncate">
+                    {ticket.event.venue}
+                  </p>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <div className="mt-12 flex items-center justify-between pt-6 border-t-2 border-dashed border-gray-200">
+            <div>
+              <p className="text-[10px] font-black text-gray-400 uppercase mb-1">
+                Ticket ID
+              </p>
+              <p className="font-mono font-bold text-indigo-900 text-sm tracking-widest bg-indigo-50 px-3 py-1 rounded-lg border border-indigo-100 uppercase">
+                {ticketId?.slice(-12)}
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-[10px] font-black text-gray-400 uppercase mb-1">
+                Powered by
+              </p>
+              <p className="font-black text-indigo-600 text-lg italic">
+                Eventify
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Side: QR Stub (Simulated Perforation) */}
+        <div className="md:w-64 bg-gray-50 border-l-2 border-dashed border-gray-200 p-8 flex flex-col items-center justify-center relative">
+          {/* Punch holes for aesthetic ticket stub look */}
+          <div className="hidden md:block absolute -top-4 left-[-9px] w-4 h-8 bg-gray-50 rounded-full border-2 border-gray-100"></div>
+          <div className="hidden md:block absolute -bottom-4 left-[-9px] w-4 h-8 bg-gray-50 rounded-full border-2 border-gray-100"></div>
+
+          <div className="bg-white p-4 rounded-3xl shadow-xl border-2 border-indigo-100 mb-4 transform hover:scale-105 transition-transform duration-300">
+            <QRCodeSVG
+              value={`${window.location.origin}/tickets/verify/${ticketId}`}
+              size={120}
+              level="H"
+              includeMargin={false}
+              className="rounded-lg"
+              imageSettings={{
+                src: "/vite.svg", // Using the existing vite logo as a center image
+                x: undefined,
+                y: undefined,
+                height: 24,
+                width: 24,
+                excavate: true,
+              }}
+            />
+          </div>
+          <div className="text-center">
+            <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">
+              Verify Entry
+            </p>
+            <p className="text-[8px] text-gray-300 font-mono break-all max-w-[120px]">
+              {ticketId}
+            </p>
+          </div>
+        </div>
       </div>
 
+      {/* Action Buttons */}
       {ticket.status === "Approved" && (
-        <div className="mb-8 text-center print:hidden">
+        <div className="mt-8 flex justify-center items-center gap-4 print:hidden">
           <button
             onClick={handleDownload}
-            className="inline-flex items-center gap-2 px-8 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition shadow-lg"
+            className="group relative inline-flex items-center gap-3 px-8 py-4 bg-gray-900 text-white font-black rounded-2xl hover:bg-black transition-all hover:shadow-2xl active:scale-95 cursor-pointer uppercase tracking-widest text-sm"
           >
-            Download / Print Ticket
+            <svg
+              className="w-5 h-5 group-hover:animate-bounce"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="3"
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+              ></path>
+            </svg>
+            Print Ticket
           </button>
-          <p className="text-sm text-gray-500 mt-2">
-            Use your browser’s print option to save as PDF.
-          </p>
         </div>
       )}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-gray-50 border rounded-lg p-6">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-800 mb-3 border-b pb-1">
-            Attendee Information
-          </h3>
-          <p className="text-gray-700 mb-2">
-            <strong>Name:</strong> {ticket.name}
-          </p>
-          <p className="text-gray-700">
-            <strong>Email:</strong> {ticket.email}
-          </p>
-        </div>
-
-        <div>
-          <h3 className="text-lg font-semibold text-gray-800 mb-3 border-b pb-1">
-            Event Details
-          </h3>
-          <p className="text-gray-700 mb-2">
-            <strong>Title:</strong> {ticket.event.title}
-          </p>
-          <p className="text-gray-700 mb-2">
-            <strong>Date:</strong>{" "}
-            {new Date(ticket.event.date).toLocaleDateString()}
-          </p>
-          <p className="text-gray-700">
-            <strong>Venue:</strong> {ticket.event.venue}
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-8 pt-4 border-t text-center">
-        <p className="text-gray-600 font-medium mb-2">
-          Event ID:
-          <code className="ml-2 bg-gray-200 px-2 py-1 rounded text-sm font-mono">
-            {ticket.event._id}
-          </code>
-        </p>
-        <p className="text-xl font-bold text-indigo-700">
-          Ticket ID:
-          <code className="ml-2 bg-indigo-100 px-3 py-1 rounded font-mono tracking-widest">
-            {ticketId}
-          </code>
-        </p>
-      </div>
     </div>
   );
 };
