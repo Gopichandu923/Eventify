@@ -80,135 +80,114 @@ const Home: React.FC = () => {
   }
 
   return (
-    <div className="max-w-5xl mx-auto">
-      <div className="text-center mb-12">
-        <h1 className="text-5xl font-extrabold text-gray-900 mb-4">
-          Upcoming Events
-        </h1>
-        <p className="text-lg text-gray-600">
-          Discover and register for amazing events happening near you
-        </p>
-      </div>
-
-      {events.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-2xl shadow-lg">
-          <svg
-            className="w-24 h-24 text-gray-300 mx-auto mb-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-            ></path>
-          </svg>
-          <p className="text-gray-600 text-xl font-medium">
-            No upcoming events available at the moment.
+    <div className="space-y-12">
+      {/* Hero Section */}
+      <section className="relative py-12 px-6 rounded-[2.5rem] overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/20 to-purple-600/20 z-0"></div>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 blur-[100px] -mr-48 -mt-48 animate-pulse-slow"></div>
+        
+        <div className="relative z-10 max-w-4xl mx-auto text-center">
+          <h1 className="text-5xl md:text-6xl font-black tracking-tight mb-4 bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
+            Unforgettable <br /> Experiences Await
+          </h1>
+          <p className="text-lg text-indigo-100/70 mb-8 max-w-2xl mx-auto leading-relaxed">
+            Discover, register, and attend the most exciting events in your city.
           </p>
-          <p className="text-gray-500 mt-2">Check back soon for new events!</p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <button className="px-6 py-3.5 bg-white text-indigo-600 font-bold rounded-2xl hover:bg-indigo-50 transition-all transform hover:scale-105 shadow-xl shadow-white/5 text-sm uppercase tracking-widest">
+              Explore Events
+            </button>
+            <Link to="/organizer/auth" className="px-6 py-3.5 bg-white/5 hover:bg-white/10 text-white font-bold rounded-2xl border border-white/10 transition-all backdrop-blur-md text-sm uppercase tracking-widest">
+              Host an Event
+            </Link>
+          </div>
         </div>
-      ) : (
-        <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-1">
-          {events.map((event) => (
-            <div
-              key={event._id}
-              className="bg-white shadow-lg rounded-2xl p-8 border border-gray-100 hover:shadow-2xl hover:border-indigo-200 transition-all duration-300 transform hover:-translate-y-1"
-            >
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-                <div className="flex-1 mb-4 md:mb-0">
-                  <h3 className="text-3xl font-bold text-indigo-700 mb-3">
+      </section>
+
+      {/* Events Grid Section */}
+      <section>
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+          <div>
+            <h2 className="text-3xl font-black text-white uppercase tracking-tight">Upcoming Events</h2>
+            <p className="text-xs font-medium text-gray-500 mt-1 uppercase tracking-widest">Handpicked experiences just for you</p>
+          </div>
+        </div>
+
+        {events.length === 0 ? (
+          <div className="glass-card rounded-[2rem] p-20 text-center border-white/5">
+            <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/10">
+              <svg className="w-10 h-10 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <h3 className="text-2xl font-black text-white mb-2 uppercase tracking-tight">No Events Found</h3>
+            <p className="text-gray-500 font-medium text-sm">Quiet at the moment. Check back soon for new arrivals.</p>
+          </div>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2">
+            {events.map((event) => (
+              <div
+                key={event._id}
+                className="group relative glass-card rounded-[2rem] overflow-hidden hover:border-indigo-500/30 transition-all duration-500 transform hover:-translate-y-1 border-white/5 shadow-xl"
+              >
+                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-600/5 blur-[60px] group-hover:bg-indigo-600/10 transition-all"></div>
+                
+                <div className="p-8 relative z-10 flex flex-col h-full">
+                  <div className="flex justify-between items-start mb-6">
+                    <div className="flex gap-2">
+                      <div className="bg-indigo-600/10 text-indigo-400 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border border-indigo-600/10">
+                        Entertainment
+                      </div>
+                      {new Date(event.date) < new Date() && (
+                        <div className="bg-rose-500/10 text-rose-400 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border border-rose-500/10">
+                          Completed
+                        </div>
+                      )}
+                    </div>
+                    <div className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border ${
+                      event.availableTickets > 0 
+                        ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/10' 
+                        : 'bg-rose-500/10 text-rose-400 border-rose-500/10'
+                    }`}>
+                      {event.availableTickets > 0 ? `${event.availableTickets} Slots` : 'Sold Out'}
+                    </div>
+                  </div>
+
+                  <h3 className="text-2xl font-black text-white mb-6 group-hover:text-indigo-400 transition-colors uppercase tracking-tight">
                     {event.title}
                   </h3>
-                  <div className="space-y-2">
-                    <div className="flex items-center text-gray-700">
-                      <svg
-                        className="w-5 h-5 mr-2 text-indigo-500"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                        ></path>
-                      </svg>
-                      <span className="font-medium">Date:</span>
-                      <span className="ml-2">
-                        {new Date(event.date).toLocaleDateString()}
-                      </span>
-                    </div>
-                    <div className="flex items-center text-gray-700">
-                      <svg
-                        className="w-5 h-5 mr-2 text-indigo-500"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                        ></path>
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                        ></path>
-                      </svg>
-                      <span className="font-medium">Venue:</span>
-                      <span className="ml-2">{event.venue}</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex flex-col items-end space-y-3">
-                  <div className="flex gap-2">
-                    {new Date(event.date) < new Date() && (
-                      <div className="px-4 py-2 rounded-full font-bold text-sm bg-red-100 text-red-700">
-                        Completed
+
+                  <div className="space-y-4 mb-8 flex-grow">
+                    <div className="flex items-center text-gray-500">
+                      <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center mr-4 group-hover:bg-indigo-600/10 transition-colors">
+                        <svg className="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
                       </div>
-                    )}
-                    <div
-                      className={`px-4 py-2 rounded-full font-bold text-sm ${event.availableTickets > 0
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
-                        }`}
-                    >
-                      {event.availableTickets > 0
-                        ? `${event.availableTickets} tickets available`
-                        : "SOLD OUT"}
+                      <span className="text-sm font-bold text-gray-300">{new Date(event.date).toLocaleDateString(undefined, { dateStyle: 'long' })}</span>
+                    </div>
+
+                    <div className="flex items-center text-gray-500">
+                      <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center mr-4 group-hover:bg-purple-600/10 transition-colors">
+                        <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        </svg>
+                      </div>
+                      <span className="text-sm font-bold text-gray-300">{event.venue}</span>
                     </div>
                   </div>
-                  <Link to={`/events/${event._id}`}>
-                    <button className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex items-center space-x-2">
-                      <span>View Details & Register</span>
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M9 5l7 7-7 7"
-                        ></path>
-                      </svg>
+
+                  <Link to={`/events/${event._id}`} className="mt-auto">
+                    <button className="w-full py-4 bg-white text-indigo-600 font-black rounded-xl transition-all shadow-xl shadow-white/5 flex items-center justify-center gap-3 uppercase tracking-widest text-xs hover:bg-neutral-100">
+                      Reserve Access
                     </button>
                   </Link>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 };

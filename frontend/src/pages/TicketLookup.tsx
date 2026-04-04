@@ -33,40 +33,68 @@ const TicketLookup: React.FC = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-20 p-8 bg-white shadow-3xl rounded-xl border-t-4 border-indigo-500 transform hover:shadow-4xl transition duration-300">
-      <h2 className="text-3xl font-extrabold text-center text-indigo-700 mb-2">
-        🔍 Retrieve Ticket
-      </h2>
-      <p className="text-center text-gray-500 mb-6 text-sm">
-        Enter the email used during registration for event:
-        <span className="font-semibold">{eventId}</span>
-      </p>
-      {error && (
-        <p className="mb-4 text-sm text-red-700 text-center bg-red-100 border border-red-300 p-3 rounded-lg animate-pulse">
-          {error}
-        </p>
-      )}
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Your Registration Email"
-          required
-          className="w-full p-4 border border-gray-300 rounded-xl transition duration-150 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
-        />
-        <button
-          type="submit"
-          disabled={loading}
-          className={`w-full p-4 font-bold text-lg rounded-xl transition duration-300 shadow-md transform hover:shadow-lg ${
-            loading
-              ? "bg-gray-400 text-gray-700 cursor-not-allowed"
-              : "bg-indigo-600 hover:bg-indigo-700 text-white"
-          }`}
-        >
-          {loading ? "Searching..." : "Retrieve Ticket"}
-        </button>
-      </form>
+    <div className="min-h-[80vh] flex items-center justify-center px-4 relative overflow-hidden">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-indigo-500/5 blur-[120px] -z-10 animate-pulse-slow"></div>
+
+      <div className="w-full max-w-md glass-card rounded-[2.5rem] overflow-hidden border-white/10 shadow-2xl relative">
+        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-8 text-center text-white relative">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 blur-3xl -mr-16 -mt-16"></div>
+          <h2 className="text-3xl font-black tracking-tight mb-1 font-mono">RETRIEVE ACCESS</h2>
+          <p className="text-indigo-100/70 text-xs font-medium uppercase tracking-widest leading-relaxed">Identity verification required</p>
+        </div>
+
+        <div className="p-8 md:p-10 space-y-8">
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center">
+             <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Target Event</p>
+             <p className="text-xs font-mono font-bold text-gray-300 break-all">{eventId}</p>
+          </div>
+
+          {error && (
+            <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 p-4 rounded-xl text-xs font-bold flex items-center gap-2 animate-shake">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-1">Registered Email</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@company.com"
+                required
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all text-white placeholder:text-gray-600 outline-none"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-4 bg-white text-indigo-600 font-black rounded-xl hover:bg-indigo-50 transition-all shadow-xl shadow-white/5 flex items-center justify-center gap-3 uppercase tracking-widest text-xs"
+            >
+              {loading ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-indigo-600/30 border-t-indigo-600 rounded-full animate-spin"></div>
+                  <span>Syncing...</span>
+                </div>
+              ) : (
+                <span>Request Ticket</span>
+              )}
+            </button>
+          </form>
+
+          <button 
+             onClick={() => navigate('/')}
+             className="w-full py-3 text-gray-500 hover:text-white transition-colors text-[10px] font-black uppercase tracking-widest border border-white/5 rounded-xl hover:bg-white/5"
+          >
+            Cancel Request
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

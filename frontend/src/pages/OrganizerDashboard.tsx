@@ -109,257 +109,160 @@ const OrganizerDashboard: React.FC = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <div className="bg-white shadow-lg rounded-2xl overflow-hidden mb-8">
-        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-            <div className="flex items-center mb-4 md:mb-0">
-              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mr-4">
-                <svg
-                  className="w-8 h-8 text-indigo-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  ></path>
+    <div className="max-w-6xl mx-auto pb-10">
+      {/* Premium Welcome Header */}
+      <div className="glass-card rounded-[2.5rem] overflow-hidden mb-8 border-white/5">
+        <div className="bg-gradient-to-br from-indigo-600 via-indigo-900 to-slate-900 p-6 md:p-10 relative overflow-hidden">
+          {/* Abstract Graphics */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 blur-[80px] -mr-32 -mt-32 rounded-full"></div>
+          
+          <div className="flex flex-col md:flex-row md:items-center justify-between relative z-10 gap-6">
+            <div className="flex items-center">
+              <div className="w-16 h-16 bg-white/10 backdrop-blur-xl border border-white/20 rounded-[1.5rem] flex items-center justify-center mr-5 shadow-2xl group cursor-default">
+                <svg className="w-8 h-8 text-white group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-white">
-                  Welcome back, {organizerName || "Organizer"}!
+                <h1 className="text-3xl font-black text-white tracking-tight mb-1">
+                  Welcome back, <span className="text-indigo-200">{organizerName || "Organizer"}</span>
                 </h1>
-                <p className="text-indigo-100">
-                  Manage your events and registrations
+                <p className="text-indigo-200/70 text-[10px] font-black uppercase tracking-widest leading-relaxed">
+                  System Status: Fully Operational
                 </p>
               </div>
             </div>
+            
             <button
               onClick={handleLogout}
-              className="px-6 py-3 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-gray-100 transition duration-200 shadow-md flex items-center"
+              className="px-5 py-3 bg-white/5 hover:bg-white/10 text-white font-black rounded-xl border border-white/10 transition-all flex items-center self-start md:self-center text-[10px] uppercase tracking-widest"
             >
-              <svg
-                className="w-5 h-5 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                ></path>
+              <svg className="w-4 h-4 mr-2 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7" />
               </svg>
-              Logout
+              End Session
             </button>
           </div>
         </div>
       </div>
 
-      <div className="bg-white shadow-lg rounded-2xl p-6 mb-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-          <div className="mb-4 md:mb-0">
-            <h3 className="text-2xl font-bold text-gray-800 mb-1">
-              Your Created Events
-            </h3>
-            <p className="text-gray-600">
-              {events.length} {events.length === 1 ? "event" : "events"} created
-            </p>
+      {/* Stats Summary / Action Bar */}
+      <div className="flex flex-col lg:flex-row gap-4 mb-10">
+        <div className="flex-1 glass-card p-6 rounded-[2rem] border-white/5 flex items-center justify-between">
+          <div>
+            <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Impact Overview</p>
+            <h3 className="text-2xl font-black text-white italic">{events.length} <span className="text-gray-600 font-bold ml-1">Events Registry</span></h3>
           </div>
-          <Link to="/organizer/create-event">
-            <button className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex items-center">
-              <svg
-                className="w-5 h-5 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M12 4v16m8-8H4"
-                ></path>
-              </svg>
-              Create New Event
-            </button>
-          </Link>
+          <div className="w-10 h-10 rounded-full bg-indigo-600/10 flex items-center justify-center">
+            <svg className="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+            </svg>
+          </div>
         </div>
+        
+        <Link to="/organizer/create-event" className="lg:w-64">
+          <button className="w-full h-full p-6 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-[2rem] transition-all shadow-xl shadow-indigo-600/20 flex items-center justify-center group uppercase tracking-widest text-[10px] gap-3">
+            <div className="bg-white/20 p-2 rounded-lg group-hover:rotate-90 transition-transform">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4" />
+              </svg>
+            </div>
+            Create New
+          </button>
+        </Link>
       </div>
 
       {error && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 flex items-start">
-          <svg
-            className="w-5 h-5 text-yellow-500 mr-2 flex-shrink-0 mt-0.5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-            ></path>
+        <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 p-6 rounded-3xl font-bold mb-10 animate-pulse flex items-center gap-4">
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
-          <p className="text-yellow-700">{error}</p>
+          {error}
         </div>
       )}
 
       {events.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-2xl shadow-lg">
-          <svg
-            className="w-24 h-24 text-gray-300 mx-auto mb-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-            ></path>
-          </svg>
-          <p className="text-gray-600 text-xl font-medium mb-2">
-            No events created yet
-          </p>
-          <p className="text-gray-500 mb-6">
-            Get started by creating your first event!
+        <div className="glass-card rounded-[3rem] p-24 text-center border-white/5 border-dashed border-2 bg-transparent">
+          <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-8 border border-white/10">
+            <svg className="w-12 h-12 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+          </div>
+          <h3 className="text-3xl font-black text-white mb-4">Start Your Legacy</h3>
+          <p className="text-gray-500 mb-10 max-w-sm mx-auto font-medium leading-relaxed">
+            Your dashboard is quiet, but it's full of potential. Create your first event and watch the registrations roll in.
           </p>
           <Link to="/organizer/create-event">
-            <button className="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition duration-200">
-              Create Your First Event
+            <button className="px-10 py-5 bg-white text-indigo-600 font-black rounded-2xl hover:bg-indigo-50 transition-all shadow-xl shadow-white/5">
+              Launch First Event
             </button>
           </Link>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 gap-6">
           {events.map((event) => (
             <div
               key={event._id}
-              className="bg-white shadow-lg rounded-xl overflow-hidden border border-gray-100 hover:shadow-2xl hover:border-indigo-200 transition-all duration-300"
+              className="group glass-card rounded-[2.5rem] overflow-hidden hover:border-indigo-500/30 transition-all duration-500 border-white/5"
             >
-              <div className="p-6">
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-                  <div className="flex-1 mb-4 lg:mb-0">
-                    <div className="flex items-start justify-between mb-3">
-                      <h4 className="text-2xl font-bold text-gray-900">
-                        {event.title}
-                      </h4>
-                      <div className="flex gap-2 ml-4">
-                        {new Date(event.date) < new Date() && (
-                          <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700">
-                            Completed
-                          </span>
-                        )}
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-bold ${event.approvalMethod === "manual"
-                              ? "bg-amber-100 text-amber-700"
-                              : "bg-green-100 text-green-700"
-                            }`}
-                        >
-                          {event.approvalMethod === "manual"
-                            ? "Manual Approval"
-                            : "Auto Approval"}
+              <div className="p-8 md:p-10 flex flex-col lg:flex-row lg:items-center justify-between gap-10">
+                <div className="flex-1 space-y-4">
+                  <div className="flex flex-wrap items-center gap-4">
+                    <h4 className="text-3xl font-black text-white group-hover:text-indigo-400 transition-colors">
+                      {event.title}
+                    </h4>
+                    <div className="flex gap-2">
+                       {new Date(event.date) < new Date() && (
+                        <span className="px-3 py-1 bg-rose-500/10 text-rose-400 text-[10px] font-black uppercase tracking-widest border border-rose-500/20 rounded-full">
+                          Completed
                         </span>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-gray-700">
-                      <div className="flex items-center">
-                        <svg
-                          className="w-5 h-5 mr-2 text-indigo-500"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                          ></path>
-                        </svg>
-                        <span className="font-medium">Date:</span>
-                        <span className="ml-2">
-                          {new Date(event.date).toLocaleDateString()}
-                        </span>
-                      </div>
-                      <div className="flex items-center">
-                        <svg
-                          className="w-5 h-5 mr-2 text-indigo-500"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"
-                          ></path>
-                        </svg>
-                        <span className="font-medium">Tickets Left:</span>
-                        <span
-                          className={`ml-2 font-bold ${event.availableTickets > 0
-                              ? "text-green-600"
-                              : "text-red-600"
-                            }`}
-                        >
-                          {event.availableTickets}
-                        </span>
-                      </div>
+                      )}
+                      <span className={`px-3 py-1 text-[10px] font-black uppercase tracking-widest border rounded-full ${
+                        event.approvalMethod === "manual" ? "bg-amber-500/10 text-amber-400 border-amber-500/20" : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                      }`}>
+                        {event.approvalMethod === "manual" ? "Manual Review" : "Auto-Approve"}
+                      </span>
                     </div>
                   </div>
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <Link to={`/events/${event._id}`}>
-                      <button className="px-4 py-2 border-2 border-indigo-600 text-indigo-600 font-medium rounded-lg hover:bg-indigo-50 transition duration-200 flex items-center justify-center">
-                        <svg
-                          className="w-5 h-5 mr-2"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                          ></path>
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                          ></path>
+
+                  <div className="flex flex-wrap gap-x-10 gap-y-4 text-sm font-bold text-gray-500">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-indigo-400">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
-                        View Public Page
-                      </button>
-                    </Link>
-                    <Link to={`/organizer/registrations/${event._id}`}>
-                      <button className="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition duration-200 flex items-center justify-center shadow-md">
-                        <svg
-                          className="w-5 h-5 mr-2"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-                          ></path>
+                      </div>
+                      <span className="text-gray-300">{new Date(event.date).toLocaleDateString(undefined, { dateStyle: 'long' })}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center ${event.availableTickets > 0 ?'text-emerald-400' : 'text-rose-400'}`}>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
                         </svg>
-                        Manage Registrations
-                      </button>
-                    </Link>
+                      </div>
+                      <span className="text-gray-300">{event.availableTickets} Tickets Available</span>
+                    </div>
                   </div>
+                </div>
+
+                <div className="flex flex-wrap md:flex-nowrap gap-4">
+                  <Link to={`/events/${event._id}`} className="flex-1">
+                    <button className="w-full h-full px-6 py-4 bg-white/5 hover:bg-white/10 text-white font-bold rounded-2xl border border-white/10 transition-all flex items-center justify-center gap-3">
+                      <svg className="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                      Preview
+                    </button>
+                  </Link>
+                  <Link to={`/organizer/registrations/${event._id}`} className="flex-1">
+                    <button className="w-full h-full px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl transition-all shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-3">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                      </svg>
+                      Manage
+                    </button>
+                  </Link>
                 </div>
               </div>
             </div>

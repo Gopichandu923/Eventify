@@ -81,12 +81,10 @@ const PublicEvent: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen bg-[#0a0a0c]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-xl text-gray-700 font-medium">
-            Loading event details...
-          </p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <p className="text-xs font-black text-gray-500 uppercase tracking-widest">Hydrating Details...</p>
         </div>
       </div>
     );
@@ -94,32 +92,32 @@ const PublicEvent: React.FC = () => {
 
   if (!event) {
     return (
-      <div className="max-w-2xl mx-auto">
-        <div className="bg-white p-10 shadow-2xl rounded-2xl text-center">
-          <svg
-            className="w-20 h-20 text-red-500 mx-auto mb-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            ></path>
-          </svg>
-          <h2 className="text-4xl font-extrabold text-red-700 mb-4">
-            Event Not Found
-          </h2>
-          <p className="text-red-600 text-lg mb-6">
-            {message || "Event data could not be loaded."}
+      <div className="max-w-2xl mx-auto py-20 px-4">
+        <div className="glass-card p-10 text-center border-rose-500/20">
+          <div className="w-20 h-20 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg
+              className="w-10 h-10 text-rose-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              ></path>
+            </svg>
+          </div>
+          <h2 className="text-3xl font-black text-white mb-2 uppercase tracking-tight">Access Restricted</h2>
+          <p className="text-gray-500 text-sm font-medium mb-8 uppercase tracking-widest leading-relaxed">
+            {message || "The requested unit could not be located in the grid."}
           </p>
           <Link
             to="/"
-            className="inline-block px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition duration-200"
+            className="inline-block px-10 py-4 bg-indigo-600 text-white font-black text-xs rounded-xl hover:bg-indigo-500 transition-all uppercase tracking-widest shadow-xl shadow-indigo-600/20"
           >
-            Go to Home
+            Terminal Return
           </Link>
         </div>
       </div>
@@ -130,233 +128,171 @@ const PublicEvent: React.FC = () => {
   const isExpired = new Date(event.date) < new Date();
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="bg-white shadow-2xl rounded-2xl overflow-hidden">
-        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-8 text-white relative">
-          {isExpired && (
-            <div className="absolute top-4 right-4 bg-red-600 text-white px-4 py-1 rounded-full font-bold shadow-lg animate-pulse">
-              COMPLETED
+    <div className="max-w-5xl mx-auto pb-6">
+      <div className="glass-card rounded-[3rem] overflow-hidden shadow-2xl border-white/5">
+        {/* Dynamic Header */}
+        <div className="relative h-45 md:h-50 bg-gradient-to-br from-indigo-900 to-slate-900 overflow-hidden">
+          {/* Background Pattern */}
+          <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/20 blur-[100px] -mr-48 -mt-48 animate-pulse-slow"></div>
+
+          <div className="absolute inset-0 p-6 md:p-10 flex flex-col justify-end">
+            <div className="flex flex-wrap gap-2 mb-4">
+              {isExpired ? (
+                <span className="px-3 py-1 bg-rose-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full">
+                  Completed
+                </span>
+              ) : (
+                <span className="px-3 py-1 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full">
+                  Active
+                </span>
+              )}
+              <span className="px-3 py-1 bg-white/10 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-widest rounded-full border border-white/10">
+                {event.approvalMode === "auto" ? "Instant" : "Review Req."}
+              </span>
             </div>
-          )}
-          <h2 className="text-4xl font-extrabold mb-2">{event.title}</h2>
-          <div className="flex flex-wrap gap-4 text-indigo-100">
-            <div className="flex items-center">
-              <svg
-                className="w-5 h-5 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                ></path>
-              </svg>
-              <span>{new Date(event.date).toLocaleDateString()}</span>
-            </div>
-            <div className="flex items-center">
-              <svg
-                className="w-5 h-5 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                ></path>
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                ></path>
-              </svg>
-              <span>{event.venue}</span>
+
+            <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight mb-3 leading-tight uppercase">
+              {event.title}
+            </h1>
+
+            <div className="flex flex-wrap gap-5 text-gray-400 text-xs font-bold uppercase tracking-widest">
+              <div className="flex items-center gap-2">
+                <svg className="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                {new Date(event.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+              </div>
+              <div className="flex items-center gap-2">
+                <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                </svg>
+                {event.venue}
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="p-8">
-          <p className="text-gray-700 text-lg mb-6 leading-relaxed">
-            {event.description}
-          </p>
-
-          <div
-            className={`inline-block px-6 py-3 rounded-full font-bold text-lg mb-6 ${isSoldOut
-              ? "bg-red-100 text-red-700"
-              : "bg-green-100 text-green-700"
-              }`}
-          >
-            {isSoldOut
-              ? "SOLD OUT"
-              : `${event.availableTickets} tickets available`}
-          </div>
-
-          {message && (
-            <div
-              className={`p-4 mb-6 rounded-xl font-medium flex items-start ${ticketId
-                ? "bg-green-50 text-green-800 border border-green-200"
-                : "bg-red-50 text-red-800 border border-red-200"
-                }`}
-            >
-              <svg
-                className="w-6 h-6 mr-3 flex-shrink-0"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                {ticketId ? (
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  ></path>
-                ) : (
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  ></path>
-                )}
-              </svg>
-              <span>{message}</span>
-            </div>
-          )}
-
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-8">
-            <h3 className="text-xl font-bold text-gray-800 mb-3 flex items-center">
-              <svg
-                className="w-6 h-6 mr-2 text-blue-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                ></path>
-              </svg>
-              Download Your Ticket
-            </h3>
-            <p className="text-gray-700 mb-4">
-              Already registered? Click the button below to retrieve your ticket
-              by email at any time.
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 lg:divide-x lg:divide-white/5">
+          {/* Description Section */}
+          <div className="lg:col-span-2 p-6 md:p-10">
+            <h3 className="text-lg font-bold mb-4 text-indigo-400 uppercase tracking-widest text-[10px]">Registry Details</h3>
+            <p className="text-gray-400 text-base leading-relaxed mb-8 whitespace-pre-line">
+              {event.description}
             </p>
-            <Link to={`/events/${id}/tickets`}>
-              <button className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-200 shadow-md flex items-center space-x-2">
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                  ></path>
-                </svg>
-                <span>Find & Download Ticket</span>
-              </button>
-            </Link>
+
+            <div className="p-6 rounded-[1.5rem] bg-indigo-600/5 border border-indigo-500/10 mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-base font-bold uppercase tracking-tight">Existing Access?</h4>
+                <div className="w-10 h-10 rounded-full bg-indigo-600/20 flex items-center justify-center">
+                  <svg className="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                  </svg>
+                </div>
+              </div>
+              <p className="text-[10px] text-gray-500 mb-4 font-medium italic">Verified attendees can retrieve credentials via secure mail sync.</p>
+              <Link to={`/events/${id}/tickets`}>
+                <button className="px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white font-black rounded-lg border border-white/10 transition-all flex items-center space-x-2 text-[10px] uppercase tracking-widest">
+                  <span>Sync My Unit</span>
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </Link>
+            </div>
           </div>
 
-          {ticketId ? (
-            <div className="text-center p-6 bg-gray-50 rounded-xl border border-gray-200">
-              <p className="text-gray-700 mb-2">Your Registration ID:</p>
-              <code className="text-lg bg-white px-4 py-2 rounded-lg font-mono font-bold text-indigo-600 border border-indigo-200 inline-block">
-                {ticketId}
-              </code>
-            </div>
-          ) : (
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-2xl font-bold text-gray-800">
-                  Register Now
-                </h3>
-                <span
-                  className={`px-3 py-1 rounded-full text-sm font-semibold ${event.approvalMode === "auto"
-                    ? "bg-green-100 text-green-700"
-                    : "bg-yellow-100 text-yellow-700"
-                    }`}
-                >
-                  {event.approvalMode === "auto"
-                    ? "Instant Approval"
-                    : "Manual Approval"}
-                </span>
+          {/* Registration Section */}
+          <div className="p-6 md:p-10 bg-white/[0.01]">
+            <div className="sticky top-24">
+              <div className="mb-8">
+                <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-1.5">Availability Cluster</p>
+                <div className="flex items-end gap-2">
+                  <span className={`text-3xl font-black ${isSoldOut ? 'text-rose-500' : 'text-white'}`}>
+                    {isSoldOut ? 'VOID' : event.availableTickets}
+                  </span>
+                  {!isSoldOut && <span className="text-[10px] text-gray-600 font-black uppercase tracking-widest mb-1.5">Active Slots</span>}
+                </div>
               </div>
 
-              {isSoldOut || isExpired ? (
-                <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
-                  <svg
-                    className="w-16 h-16 text-red-500 mx-auto mb-3"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M6 18L18 6M6 6l12 12"
-                    ></path>
-                  </svg>
-                  <p className="text-red-700 font-bold text-lg">
-                    {isExpired
-                      ? "This event has passed and is no longer accepting registrations."
-                      : "Sorry, this event is sold out."}
-                  </p>
+              {message && (
+                <div className={`p-4 mb-6 rounded-xl border text-[10px] font-black uppercase tracking-widest ${ticketId
+                  ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                  : "bg-rose-500/10 border-rose-500/20 text-rose-400"
+                  }`}>
+                  <div className="flex items-start gap-3">
+                    <div className={`w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center ${ticketId ? 'bg-emerald-500' : 'bg-rose-500'}`}>
+                      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <span>{message}</span>
+                  </div>
+                  {ticketId && (
+                    <div className="mt-3 pt-3 border-t border-emerald-500/10 text-center">
+                      <Link
+                        to={`/tickets/${ticketId}`}
+                        className="block w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-900 rounded-xl transition-all"
+                      >
+                        Launch Ticket
+                      </Link>
+                    </div>
+                  )}
                 </div>
-              ) : (
+              )}
+
+              {(!ticketId && !isSoldOut && !isExpired) && (
                 <form onSubmit={onSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-gray-700 font-medium mb-2">
-                      Full Name
-                    </label>
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-black text-gray-500 uppercase tracking-widest ml-1">Attendee Identity</label>
                     <input
                       type="text"
-                      placeholder="Enter your full name"
+                      placeholder="Full Name"
                       name="name"
                       value={registrationData.name}
                       onChange={onChange}
                       required
-                      className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all text-white text-xs"
                     />
                   </div>
-                  <div>
-                    <label className="block text-gray-700 font-medium mb-2">
-                      Email Address
-                    </label>
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-black text-gray-500 uppercase tracking-widest ml-1">Communication Port</label>
                     <input
                       type="email"
-                      placeholder="Enter your email"
+                      placeholder="name@domain.com"
                       name="email"
                       value={registrationData.email}
                       onChange={onChange}
                       required
-                      className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all text-white text-xs"
                     />
                   </div>
                   <button
                     type="submit"
-                    className="w-full p-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold text-lg rounded-xl hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                    className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-xl shadow-indigo-600/20 transform hover:scale-[1.02] active:scale-[0.98]"
                   >
-                    Register for Event
+                    Initialize Access
                   </button>
+                  <p className="text-[8px] text-center text-gray-700 font-black uppercase tracking-[0.3em] mt-4">
+                    Registry Encyption: AES-256
+                  </p>
                 </form>
               )}
+
+              {(isSoldOut || isExpired) && !ticketId && (
+                <div className="text-center p-6 border border-white/5 rounded-3xl bg-white/2">
+                  <div className="w-12 h-12 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <svg className="w-6 h-6 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </div>
+                  <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest">
+                    {isExpired ? "Event Terminated" : "Cluster Exhausted"}
+                  </p>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>

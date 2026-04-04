@@ -49,26 +49,27 @@ const TicketVerification: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-indigo-600 mb-4"></div>
-        <p className="text-xl font-bold text-gray-600 uppercase tracking-widest">Verifying Ticket...</p>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-[#0a0a0c]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mb-4"></div>
+        <p className="text-xs font-black text-gray-500 uppercase tracking-widest">Protocol: Verifying...</p>
       </div>
     );
   }
 
   if (error || !ticket) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-red-50 p-6">
-        <div className="bg-white p-10 rounded-3xl shadow-2xl border-4 border-red-500 text-center max-w-md w-full">
-          <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg className="w-12 h-12 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-red-950/20 p-6 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[#0a0a0c] -z-10"></div>
+        <div className="glass-card p-8 rounded-3xl border-rose-500/20 text-center max-w-sm w-full">
+          <div className="w-16 h-16 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-rose-500/20">
+            <svg className="w-8 h-8 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12"></path>
             </svg>
           </div>
-          <h2 className="text-4xl font-black text-red-700 mb-2">INVALID</h2>
-          <p className="text-gray-600 font-medium mb-8">{error || "Verification Failed"}</p>
-          <Link to="/" className="inline-block w-full py-4 bg-gray-900 text-white font-bold rounded-2xl hover:bg-black transition-all uppercase tracking-widest">
-            Back to Home
+          <h2 className="text-2xl font-black text-rose-500 mb-1">INVALID UNIT</h2>
+          <p className="text-xs text-gray-500 font-medium mb-6 uppercase tracking-widest leading-relaxed">{error || "Verification Failed"}</p>
+          <Link to="/" className="inline-block w-full py-3.5 bg-white text-indigo-600 font-black rounded-xl hover:bg-neutral-100 transition-all uppercase tracking-widest text-[10px]">
+            Return to Port
           </Link>
         </div>
       </div>
@@ -78,60 +79,81 @@ const TicketVerification: React.FC = () => {
   const isApproved = ticket.status === "Approved";
 
   return (
-    <div className={`flex flex-col items-center justify-center min-h-screen p-6 ${isApproved ? 'bg-green-50' : 'bg-yellow-50'}`}>
-      <div className={`bg-white p-10 rounded-3xl shadow-2xl border-4 ${isApproved ? 'border-green-500' : 'border-yellow-500'} text-center max-w-lg w-full transform transition-all hover:scale-105`}>
-        
-        {isApproved ? (
-          <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
-            <svg className="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7"></path>
-            </svg>
-          </div>
-        ) : (
-          <div className="w-24 h-24 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
-             <svg className="w-12 h-12 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-            </svg>
-          </div>
-        ) }
+    <div className="min-h-screen flex items-center justify-center py-4 px-4 relative overflow-hidden">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-indigo-500/5 blur-[120px] -z-10 animate-pulse-slow"></div>
 
-        <h2 className={`text-5xl font-black mb-2 uppercase tracking-tighter ${isApproved ? 'text-green-700' : 'text-yellow-700'}`}>
-          {isApproved ? 'VERIFIED' : 'PENDING'}
-        </h2>
-        <p className="text-gray-400 font-bold uppercase tracking-widest text-sm mb-8">Official Eventify Entry Result</p>
-
-        <div className="space-y-4 mb-10 text-left bg-gray-50 p-6 rounded-2xl border border-gray-100">
-           <div>
-            <p className="text-[10px] font-black text-gray-400 uppercase mb-1">Event</p>
-            <p className="text-xl font-bold text-gray-900">{ticket.event.title}</p>
-          </div>
-          <div className="pt-4 border-t border-gray-200">
-            <p className="text-[10px] font-black text-gray-400 uppercase mb-1">Attendee Name</p>
-            <p className="text-lg font-bold text-indigo-700">{ticket.name}</p>
-            <p className="text-xs text-gray-400 truncate">{ticket.email}</p>
-          </div>
-          <div className="pt-4 border-t border-gray-200 grid grid-cols-2 gap-4">
-            <div>
-               <p className="text-[10px] font-black text-gray-400 uppercase mb-1">Date</p>
-               <p className="font-bold text-gray-800">{new Date(ticket.event.date).toLocaleDateString()}</p>
-            </div>
-             <div>
-               <p className="text-[10px] font-black text-gray-400 uppercase mb-1">Ticket ID</p>
-               <p className="font-mono font-bold text-gray-800 text-sm">...{ticketId?.slice(-8)}</p>
-            </div>
+      <div className="w-full max-w-md glass-card rounded-[2.5rem] overflow-hidden border-white/10 shadow-2xl relative">
+        <div className={`p-6 text-center ${isApproved ? 'bg-emerald-600/10' : 'bg-amber-600/10'} relative`}>
+          <div className="relative z-10">
+            {isApproved ? (
+              <div className="w-14 h-14 bg-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl shadow-emerald-500/30">
+                <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+            ) : (
+              <div className="w-14 h-14 bg-amber-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl shadow-amber-500/30">
+                <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+            )}
+            <h2 className={`text-2xl font-black tracking-tighter uppercase ${isApproved ? 'text-emerald-400' : 'text-amber-400'}`}>
+              {isApproved ? 'Verified Access' : 'Awaiting Review'}
+            </h2>
+            <p className="text-[9px] font-black text-gray-500 uppercase tracking-[0.3em] mt-1">Eventify Node Connection</p>
           </div>
         </div>
 
-        <button 
-           onClick={() => window.location.reload()}
-           className="w-full py-4 bg-indigo-600 text-white font-black rounded-2xl hover:bg-indigo-700 transition-all uppercase tracking-widest text-sm shadow-xl hover:shadow-indigo-200 mb-4"
-        >
-          Scan Next Ticket
-        </button>
-        
-        <Link to="/organizer/dashboard" className="text-gray-400 hover:text-gray-600 font-bold uppercase tracking-widest text-xs">
-          Return to Dashboard
-        </Link>
+        <div className="p-6 md:p-8 space-y-4">
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-4">
+            <div className="space-y-0.5">
+              <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest leading-none">Entry Registry</p>
+              <p className="text-lg font-bold text-white uppercase italic truncate">{ticket.event.title}</p>
+            </div>
+            
+            <div className="pt-4 border-t border-white/5 space-y-3">
+              <div className="flex justify-between items-end">
+                <div>
+                  <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-0.5">Identity</p>
+                  <p className="text-base font-bold text-indigo-400 leading-none">{ticket.name}</p>
+                  <p className="text-[10px] text-gray-500 mt-1">{ticket.email}</p>
+                </div>
+                <div className="text-right">
+                  <div className={`px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest ${isApproved ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>
+                    {ticket.status}
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-3 border-t border-white/5 grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-0.5">Launch Date</p>
+                  <p className="text-xs font-bold text-white">{new Date(ticket.event.date).toLocaleDateString(undefined, { dateStyle: 'medium' })}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-0.5">Protocol ID</p>
+                  <p className="text-xs font-mono font-bold text-white">#{ticketId?.slice(-6).toUpperCase()}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-3 pt-2">
+            <button
+              onClick={() => window.location.reload()}
+              className="w-full py-3.5 bg-white text-indigo-600 font-black rounded-xl hover:bg-neutral-100 transition-all shadow-xl shadow-white/5 uppercase tracking-widest text-[10px]"
+            >
+              Scan Next Unit
+            </button>
+            <Link 
+              to="/organizer/dashboard" 
+              className="flex justify-center items-center gap-2 text-gray-500 hover:text-white transition-colors text-[9px] font-black uppercase tracking-widest"
+            >
+              Command Hub
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );
