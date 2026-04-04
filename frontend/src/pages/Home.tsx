@@ -19,7 +19,20 @@ const Home: React.FC = () => {
     const fetchEvents = async () => {
       try {
         const res = await getAllEvents();
-        setEvents(res.data);
+        const fetchedEvents = Array.isArray(res.data) ? res.data : [];
+
+        // Sort: Active events first, then by date (soonest to latest)
+        const sortedEvents = [...fetchedEvents].sort((a, b) => {
+          const isAExpired = new Date(a.date) < new Date();
+          const isBExpired = new Date(b.date) < new Date();
+
+          if (!isAExpired && isBExpired) return -1;
+          if (isAExpired && !isBExpired) return 1;
+
+          return new Date(a.date).getTime() - new Date(b.date).getTime();
+        });
+
+        setEvents(sortedEvents);
       } catch (err: any) {
         console.error(err);
         setError("Failed to fetch events.");
@@ -155,16 +168,22 @@ const Home: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex flex-col items-end space-y-3">
-                  <div
-                    className={`px-4 py-2 rounded-full font-bold text-sm ${
-                      event.availableTickets > 0
+                  <div className="flex gap-2">
+                    {new Date(event.date) < new Date() && (
+                      <div className="px-4 py-2 rounded-full font-bold text-sm bg-red-100 text-red-700">
+                        Completed
+                      </div>
+                    )}
+                    <div
+                      className={`px-4 py-2 rounded-full font-bold text-sm ${event.availableTickets > 0
                         ? "bg-green-100 text-green-700"
                         : "bg-red-100 text-red-700"
-                    }`}
-                  >
-                    {event.availableTickets > 0
-                      ? `${event.availableTickets} tickets available`
-                      : "SOLD OUT"}
+                        }`}
+                    >
+                      {event.availableTickets > 0
+                        ? `${event.availableTickets} tickets available`
+                        : "SOLD OUT"}
+                    </div>
                   </div>
                   <Link to={`/events/${event._id}`}>
                     <button className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex items-center space-x-2">

@@ -28,7 +28,19 @@ const OrganizerDashboard: React.FC = () => {
       }
       try {
         const res = await getMyEvents();
-        setEvents(res.data);
+        const fetchedEvents = Array.isArray(res.data) ? res.data : [];
+
+        const sortedEvents = [...fetchedEvents].sort((a, b) => {
+          const isAExpired = new Date(a.date) < new Date();
+          const isBExpired = new Date(b.date) < new Date();
+
+          if (!isAExpired && isBExpired) return -1;
+          if (isAExpired && !isBExpired) return 1;
+
+          return new Date(a.date).getTime() - new Date(b.date).getTime();
+        });
+
+        setEvents(sortedEvents);
       } catch (err: any) {
         setError(
           err.response?.data?.message ||
@@ -240,17 +252,24 @@ const OrganizerDashboard: React.FC = () => {
                       <h4 className="text-2xl font-bold text-gray-900">
                         {event.title}
                       </h4>
-                      <span
-                        className={`ml-4 px-3 py-1 rounded-full text-xs font-bold ${
-                          event.approvalMethod === "manual"
-                            ? "bg-amber-100 text-amber-700"
-                            : "bg-green-100 text-green-700"
-                        }`}
-                      >
-                        {event.approvalMethod === "manual"
-                          ? "Manual Approval"
-                          : "Auto Approval"}
-                      </span>
+                      <div className="flex gap-2 ml-4">
+                        {new Date(event.date) < new Date() && (
+                          <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700">
+                            Expired
+                          </span>
+                        )}
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-bold ${
+                            event.approvalMethod === "manual"
+                              ? "bg-amber-100 text-amber-700"
+                              : "bg-green-100 text-green-700"
+                          }`}
+                        >
+                          {event.approvalMethod === "manual"
+                            ? "Manual Approval"
+                            : "Auto Approval"}
+                        </span>
+                      </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-gray-700">
                       <div className="flex items-center">
