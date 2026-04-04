@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getEventDetails, registerForEvent } from "../api";
 
 interface Event {
@@ -14,51 +15,28 @@ interface Event {
 
 const PublicEvent: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [event, setEvent] = useState<Event | null>(null);
+  const queryClient = useQueryClient();
   const [registrationData, setRegistrationData] = useState({
     name: "",
     email: "",
   });
   const [message, setMessage] = useState<string | null>(null);
   const [ticketId, setTicketId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchEvent = async () => {
-      if (!id) {
-        setLoading(false);
-        setMessage("Invalid event ID provided.");
-        return;
-      }
-      try {
-        const res = await getEventDetails(id);
-        setEvent(res.data);
-        setMessage(null);
-      } catch (err: any) {
-        setMessage(
-          err.response?.data?.message ||
-          err.message ||
-          "Event not found or server error."
-        );
-        setEvent(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchEvent();
-  }, [id]);
+  const { data: event, isLoading, error } = useQuery({
+    queryKey: ["event", id],
+    queryFn: async () => {
+      if (!id) throw new Error("Invalid event ID");
+      const res = await getEventDetails(id);
+      return res.data as Event;
+    },
+    enabled: !!id,
+  });
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setRegistrationData({
-      ...registrationData,
-      [e.target.name]: e.target.value,
-    });
-
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!id || !event) return;
-    try {
-      const res = await registerForEvent({ eventId: id, ...registrationData });
+  const registrationMutation = useMutation({
+    mutationFn: (data: { eventId: string; name: string; email: string }) => 
+      registerForEvent(data),
+    onSuccess: (res) => {
       const { ticketId, status } = res.data;
       const statusMsg =
         status === "Approved"
@@ -68,7 +46,10 @@ const PublicEvent: React.FC = () => {
         `Registration successful! ${statusMsg} Please use the download link below.`
       );
       setTicketId(ticketId);
-    } catch (err: any) {
+      // Invalidate the event query to refresh available tickets
+      queryClient.invalidateQueries({ queryKey: ["event", id] });
+    },
+    onError: (err: any) => {
       setMessage(
         "Registration failed: " +
         (err.response?.data?.message ||
@@ -77,47 +58,50 @@ const PublicEvent: React.FC = () => {
       );
       setTicketId(null);
     }
+  });
+
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setRegistrationData({
+      ...registrationData,
+      [e.target.name]: e.target.value,
+    });
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!id || !event) return;
+    registrationMutation.mutate({ eventId: id, ...registrationData });
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh] bg-[#0a0a0c]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-xs font-black text-gray-500 uppercase tracking-widest">Hydrating Details...</p>
+          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest animate-pulse italic">Hydrating Details...</p>
         </div>
       </div>
     );
   }
 
-  if (!event) {
+  if (error || !event) {
     return (
       <div className="max-w-2xl mx-auto py-20 px-4">
         <div className="glass-card p-10 text-center border-rose-500/20">
-          <div className="w-20 h-20 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg
-              className="w-10 h-10 text-rose-500"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              ></path>
+          <div className="w-20 h-20 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-rose-500/10">
+            <svg className="w-10 h-10 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h2 className="text-3xl font-black text-white mb-2 uppercase tracking-tight">Access Restricted</h2>
-          <p className="text-gray-500 text-sm font-medium mb-8 uppercase tracking-widest leading-relaxed">
-            {message || "The requested unit could not be located in the grid."}
+          <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1 opacity-50 italic">Registry Link Failed</p>
+          <h2 className="text-3xl font-black text-white mb-2 uppercase tracking-tight italic">Access Restricted</h2>
+          <p className="text-gray-500 text-xs font-medium mb-8 uppercase tracking-widest leading-relaxed">
+            {error instanceof Error ? error.message : "The requested unit could not be located in the grid."}
           </p>
           <Link
             to="/"
-            className="inline-block px-10 py-4 bg-indigo-600 text-white font-black text-xs rounded-xl hover:bg-indigo-500 transition-all uppercase tracking-widest shadow-xl shadow-indigo-600/20"
+            className="inline-block px-10 py-4 bg-white text-indigo-600 font-black text-[10px] rounded-xl hover:bg-neutral-100 transition-all uppercase tracking-widest shadow-xl shadow-white/5"
           >
-            Terminal Return
+            Direct Terminal Return
           </Link>
         </div>
       </div>
@@ -152,11 +136,11 @@ const PublicEvent: React.FC = () => {
               </span>
             </div>
             
-            <h1 className="text-2xl md:text-4xl font-black text-white tracking-tight mb-2 leading-tight uppercase truncate-2-lines">
+            <h1 className="text-2xl md:text-4xl font-black text-white tracking-tight mb-2 leading-tight uppercase truncate-2-lines italic">
               {event.title}
             </h1>
             
-            <div className="flex flex-wrap gap-4 text-gray-400 text-[10px] font-black uppercase tracking-[0.15em]">
+            <div className="flex flex-wrap gap-4 text-gray-400 text-[10px] font-black uppercase tracking-widest">
               <div className="flex items-center gap-1.5">
                 <svg className="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -176,23 +160,23 @@ const PublicEvent: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 lg:divide-x lg:divide-white/5">
           {/* Description Section */}
           <div className="lg:col-span-2 p-6 md:p-10">
-            <h3 className="text-lg font-bold mb-4 text-indigo-400 uppercase tracking-widest text-[10px]">Registry Details</h3>
+            <h3 className="text-lg font-black mb-4 text-indigo-400 uppercase tracking-[0.2em] text-[10px] italic">Registry Details</h3>
             <p className="text-gray-400 text-base leading-relaxed mb-8 whitespace-pre-line">
               {event.description}
             </p>
 
             <div className="p-6 rounded-[1.5rem] bg-indigo-600/5 border border-indigo-500/10 mb-6">
               <div className="flex items-center justify-between mb-3">
-                <h4 className="text-base font-bold uppercase tracking-tight">Existing Access?</h4>
+                <h4 className="text-sm font-black uppercase tracking-tight italic">Existing Access?</h4>
                 <div className="w-10 h-10 rounded-full bg-indigo-600/20 flex items-center justify-center">
                   <svg className="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                   </svg>
                 </div>
               </div>
-              <p className="text-[10px] text-gray-500 mb-4 font-medium italic">Verified attendees can retrieve credentials via secure mail sync.</p>
+              <p className="text-[10px] text-gray-500 mb-4 font-black uppercase tracking-widest italic leading-relaxed opacity-60">Verified attendees can retrieve credentials via secure mail sync.</p>
               <Link to={`/events/${id}/tickets`}>
-                <button className="px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white font-black rounded-lg border border-white/10 transition-all flex items-center space-x-2 text-[10px] uppercase tracking-widest">
+                <button className="px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white font-black rounded-lg border border-white/10 transition-all flex items-center space-x-2 text-[9px] uppercase tracking-widest">
                   <span>Sync My Unit</span>
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7-7 7" />
@@ -206,17 +190,17 @@ const PublicEvent: React.FC = () => {
           <div className="p-6 md:p-10 bg-white/[0.01]">
             <div className="sticky top-16 md:top-24">
               <div className="mb-8">
-                <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-1.5">Availability Cluster</p>
+                <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-1.5 opacity-60 italic">Availability Cluster</p>
                 <div className="flex items-end gap-2">
                   <span className={`text-3xl font-black ${isSoldOut ? 'text-rose-500' : 'text-white'}`}>
                     {isSoldOut ? 'VOID' : event.availableTickets}
                   </span>
-                  {!isSoldOut && <span className="text-[10px] text-gray-600 font-black uppercase tracking-widest mb-1.5">Active Slots</span>}
+                  {!isSoldOut && <span className="text-[10px] text-gray-600 font-black uppercase tracking-widest mb-1.5 italic">Active Slots</span>}
                 </div>
               </div>
 
               {message && (
-                <div className={`p-4 mb-6 rounded-xl border text-[10px] font-black uppercase tracking-widest ${
+                <div className={`p-4 mb-6 rounded-xl border text-[9px] font-black uppercase tracking-widest ${
                   ticketId 
                     ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" 
                     : "bg-rose-500/10 border-rose-500/20 text-rose-400"
@@ -224,7 +208,7 @@ const PublicEvent: React.FC = () => {
                   <div className="flex items-start gap-3">
                     <div className={`w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center ${ticketId ? 'bg-emerald-500' : 'bg-rose-500'}`}>
                       <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7" />
                       </svg>
                     </div>
                     <span>{message}</span>
@@ -233,7 +217,7 @@ const PublicEvent: React.FC = () => {
                     <div className="mt-3 pt-3 border-t border-emerald-500/10 text-center">
                       <Link 
                         to={`/tickets/${ticketId}`}
-                        className="block w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-900 rounded-xl transition-all"
+                        className="block w-full py-3 bg-white text-indigo-600 font-black rounded-xl transition-all shadow-xl shadow-white/5 uppercase tracking-widest"
                       >
                         Launch Ticket
                       </Link>
@@ -245,7 +229,7 @@ const PublicEvent: React.FC = () => {
               {(!ticketId && !isSoldOut && !isExpired) && (
                 <form onSubmit={onSubmit} className="space-y-4">
                   <div className="space-y-1">
-                    <label className="text-[9px] font-black text-gray-500 uppercase tracking-widest ml-1">Attendee Identity</label>
+                    <label className="text-[9px] font-black text-gray-500 uppercase tracking-widest ml-1 opacity-60">Attendee Identity</label>
                     <input
                       type="text"
                       placeholder="Full Name"
@@ -253,11 +237,11 @@ const PublicEvent: React.FC = () => {
                       value={registrationData.name}
                       onChange={onChange}
                       required
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all text-white text-xs"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all text-white text-[10px] uppercase tracking-widest font-bold placeholder:text-gray-700"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[9px] font-black text-gray-500 uppercase tracking-widest ml-1">Communication Port</label>
+                    <label className="text-[9px] font-black text-gray-500 uppercase tracking-widest ml-1 opacity-60">Communication Port</label>
                     <input
                       type="email"
                       placeholder="name@domain.com"
@@ -265,16 +249,17 @@ const PublicEvent: React.FC = () => {
                       value={registrationData.email}
                       onChange={onChange}
                       required
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all text-white text-xs"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all text-white text-[10px] uppercase tracking-widest font-bold placeholder:text-gray-700"
                     />
                   </div>
                   <button
                     type="submit"
-                    className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-xl shadow-indigo-600/20 transform hover:scale-[1.02] active:scale-[0.98]"
+                    disabled={registrationMutation.isPending}
+                    className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-[10px] uppercase tracking-widest rounded-xl transition-all shadow-xl shadow-indigo-600/20 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
                   >
-                    Initialize Access
+                    {registrationMutation.isPending ? "Connecting..." : "Initialize Access"}
                   </button>
-                  <p className="text-[8px] text-center text-gray-700 font-black uppercase tracking-[0.3em] mt-4">
+                  <p className="text-[7px] text-center text-gray-700 font-black uppercase tracking-[0.3em] mt-4 italic">
                     Registry Encryption: AES-256
                   </p>
                 </form>
@@ -282,12 +267,12 @@ const PublicEvent: React.FC = () => {
 
               {(isSoldOut || isExpired) && !ticketId && (
                 <div className="text-center p-6 border border-white/5 rounded-3xl bg-white/2">
-                   <div className="w-12 h-12 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                   <div className="w-12 h-12 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-3 border border-rose-500/10">
                     <svg className="w-6 h-6 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </div>
-                  <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest">
+                  <p className="text-[9px] text-gray-500 font-black uppercase tracking-[0.2em] italic opacity-50">
                     {isExpired ? "Event Terminated" : "Cluster Exhausted"}
                   </p>
                 </div>

@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getEventRegistrations, updateRegistrationStatus } from "../api";
 
 interface Event {
@@ -18,61 +19,35 @@ interface Registration {
 
 const EventRegistrations: React.FC = () => {
   const { eventId } = useParams<{ eventId: string }>();
-  const [event, setEvent] = useState<Event | null>(null);
-  const [registrations, setRegistrations] = useState<Registration[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
   const [filter, setFilter] = useState<
     "all" | "Pending" | "Approved" | "Rejected"
   >("all");
   const token = localStorage.getItem("token");
 
-  const fetchRegistrations = async () => {
-    if (!token || !eventId) {
-      setError("Missing event ID or authorization token.");
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    try {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["registrations", eventId],
+    queryFn: async () => {
+      if (!token || !eventId) throw new Error("Missing credentials");
       const res = await getEventRegistrations(eventId);
-      setEvent(res.data?.event || null);
-      setRegistrations(Array.isArray(res.data?.registrations) ? res.data.registrations : []);
-      setError(null);
-    } catch (err: any) {
-      setError(
-        err.response?.data?.message ||
-        "Could not load registrations or unauthorized."
-      );
-      setEvent(null);
-      setRegistrations([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+      return res.data;
+    },
+    enabled: !!token && !!eventId,
+  });
 
-  useEffect(() => {
-    fetchRegistrations();
-  }, [eventId, token]);
-
-  const handleUpdateStatus = async (
-    registrationId: string,
-    newStatus: "Approved" | "Rejected"
-  ) => {
-    if (!token) return;
-    try {
-      await updateRegistrationStatus(
-        registrationId,
-        { status: newStatus }
-      );
-      fetchRegistrations();
-    } catch (err: any) {
-      alert(
-        err.response?.data?.message ||
-        "Error updating status. Check API console."
-      );
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: "Approved" | "Rejected" }) => 
+      updateRegistrationStatus(id, { status }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["registrations", eventId] });
+    },
+    onError: (err: any) => {
+      alert(err.response?.data?.message || "Error updating status.");
     }
-  };
+  });
+
+  const event = data?.event as Event | null;
+  const registrations = (Array.isArray(data?.registrations) ? data.registrations : []) as Registration[];
 
   const filteredRegistrations =
     filter === "all"
@@ -86,12 +61,12 @@ const EventRegistrations: React.FC = () => {
     rejected: registrations.filter((r) => r.status === "Rejected").length,
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh] bg-[#0a0a0c]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-xs font-black text-gray-500 uppercase tracking-widest">Hydrating Registry...</p>
+          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest animate-pulse italic">Hydrating Registry...</p>
         </div>
       </div>
     );
@@ -100,13 +75,21 @@ const EventRegistrations: React.FC = () => {
   if (error || !event) {
     return (
       <div className="flex items-center justify-center min-h-[60vh] bg-[#0a0a0c] px-4">
-        <div className="text-center glass-card p-7 rounded-3xl border-rose-500/20 max-w-sm w-full">
-          <p className="text-rose-500 text-[10px] font-black uppercase tracking-widest mb-6">{error || "Access Denied"}</p>
+        <div className="text-center glass-card p-10 rounded-3xl border-rose-500/20 max-w-sm w-full">
+           <div className="w-12 h-12 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-5 border border-rose-500/10">
+            <svg className="w-6 h-6 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-black text-white mb-2 uppercase tracking-tight italic">Registry Link Failed</h3>
+          <p className="text-gray-500 text-[9px] font-black uppercase tracking-widest leading-relaxed mb-8 opacity-60">
+            {error instanceof Error ? error.message : "Access Denied"}
+          </p>
           <Link
             to="/organizer/dashboard"
-            className="inline-block w-full px-6 py-3 bg-white text-indigo-600 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-neutral-100 transition-all"
+            className="inline-block w-full px-6 py-4 bg-white text-indigo-600 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-neutral-100 transition-all shadow-xl shadow-white/5"
           >
-            Terminal Return
+            Direct Terminal Return
           </Link>
         </div>
       </div>
@@ -131,7 +114,7 @@ const EventRegistrations: React.FC = () => {
             <span className="hidden sm:inline">Command Hub</span>
           </Link>
           <div className="text-right">
-            <h1 className="text-xs md:text-base font-black text-white italic truncate max-w-[150px] md:max-w-md uppercase tracking-tight">{event.title}</h1>
+            <h1 className="text-sm md:text-base font-black text-white italic truncate max-w-[150px] md:max-w-md uppercase tracking-tight">{event.title}</h1>
           </div>
         </div>
 
@@ -139,7 +122,7 @@ const EventRegistrations: React.FC = () => {
           {[
             { label: 'Units', value: stats.total, color: 'text-indigo-400' },
             { label: 'Queue', value: stats.pending, color: 'text-amber-400' },
-            { label: 'Active', value: stats.approved, color: 'text-emerald-400' },
+            { label: 'Verified', value: stats.approved, color: 'text-emerald-400' },
             { label: 'Voids', value: stats.rejected, color: 'text-rose-400' }
           ].map((stat, i) => (
             <div key={i} className="glass-card p-3 md:p-4 rounded-xl md:rounded-2xl border-white/5 flex items-center justify-between group">
@@ -157,7 +140,7 @@ const EventRegistrations: React.FC = () => {
         <div className="glass-card rounded-[1.5rem] md:rounded-[2rem] overflow-hidden border-white/10 shadow-2xl">
           <div className="p-4 md:p-5 border-b border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <h3 className="text-[10px] md:text-xs font-black text-white uppercase tracking-widest">Registry Database</h3>
+              <h3 className="text-[10px] md:text-xs font-black text-white uppercase tracking-widest italic opacity-60">Registry Database</h3>
             </div>
 
             <div className="flex flex-wrap gap-1.5">
@@ -185,8 +168,8 @@ const EventRegistrations: React.FC = () => {
             <table className="w-full text-left border-collapse min-w-[500px]">
               <thead>
                 <tr className="bg-white/[0.01]">
-                  <th className="px-4 md:px-6 py-3 md:py-4 text-[8px] md:text-[9px] font-black text-gray-500 uppercase tracking-widest border-b border-white/5">Identity</th>
-                  <th className="px-4 md:px-6 py-3 md:py-4 text-[8px] md:text-[9px] font-black text-gray-500 uppercase tracking-widest border-b border-white/5">Mail</th>
+                  <th className="px-4 md:px-6 py-3 md:py-4 text-[8px] md:text-[9px] font-black text-gray-500 uppercase tracking-widest border-b border-white/5">Identity Registry</th>
+                  <th className="px-4 md:px-6 py-3 md:py-4 text-[8px] md:text-[9px] font-black text-gray-500 uppercase tracking-widest border-b border-white/5">Mail Port</th>
                   <th className="px-4 md:px-6 py-3 md:py-4 text-[8px] md:text-[9px] font-black text-gray-500 uppercase tracking-widest border-b border-white/5 text-center">Status</th>
                   <th className="px-4 md:px-6 py-3 md:py-4 text-[8px] md:text-[9px] font-black text-gray-500 uppercase tracking-widest border-b border-white/5 text-right">Actions</th>
                 </tr>
@@ -206,11 +189,11 @@ const EventRegistrations: React.FC = () => {
                           <div className="w-7 h-7 md:w-8 md:h-8 bg-gradient-to-br from-indigo-500/50 to-purple-500/50 rounded-lg flex items-center justify-center text-white font-black text-[9px] md:text-[10px]">
                             {reg.name.charAt(0)}
                           </div>
-                          <span className="text-[10px] md:text-xs font-bold text-gray-200 uppercase tracking-tight truncate max-w-[80px] md:max-w-[120px]">{reg.name}</span>
+                          <span className="text-[10px] md:text-xs font-black text-gray-200 uppercase tracking-widest truncate max-w-[80px] md:max-w-[120px]">{reg.name}</span>
                         </div>
                       </td>
                       <td className="px-4 md:px-6 py-3">
-                        <span className="text-[9px] md:text-[10px] text-gray-500 font-medium truncate max-w-[100px] md:max-w-[150px] block">{reg.email}</span>
+                        <span className="text-[9px] md:text-[10px] text-gray-600 font-black uppercase tracking-widest truncate max-w-[100px] md:max-w-[150px] block opacity-60 italic">{reg.email}</span>
                       </td>
                       <td className="px-4 md:px-6 py-3 text-center">
                         <div className={`px-2 py-0.5 rounded text-[7px] md:text-[8px] font-black uppercase tracking-widest inline-block ${reg.status === 'Approved' ? 'bg-emerald-500/10 text-emerald-400' :
@@ -224,21 +207,23 @@ const EventRegistrations: React.FC = () => {
                         {event.approvalMethod === "manual" && reg.status === "Pending" ? (
                           <div className="flex justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button
-                              onClick={() => handleUpdateStatus(reg._id, "Approved")}
-                              className="px-2 md:px-3 py-1 md:py-1.5 bg-emerald-500 text-white text-[7px] md:text-[8px] font-black rounded-lg hover:bg-emerald-400 transition-all uppercase tracking-widest"
+                              onClick={() => updateStatusMutation.mutate({ id: reg._id, status: "Approved" })}
+                              disabled={updateStatusMutation.isPending}
+                              className="px-2 md:px-3 py-1 md:py-1.5 bg-white text-indigo-600 text-[7px] md:text-[8px] font-black rounded-lg hover:bg-neutral-100 transition-all uppercase tracking-widest disabled:opacity-50"
                             >
                               Verify
                             </button>
                             <button
-                              onClick={() => handleUpdateStatus(reg._id, "Rejected")}
-                              className="px-2 md:px-3 py-1 md:py-1.5 bg-rose-500 text-white text-[7px] md:text-[8px] font-black rounded-lg hover:bg-rose-400 transition-all uppercase tracking-widest"
+                              onClick={() => updateStatusMutation.mutate({ id: reg._id, status: "Rejected" })}
+                              disabled={updateStatusMutation.isPending}
+                              className="px-2 md:px-3 py-1 md:py-1.5 bg-rose-500 text-white text-[7px] md:text-[8px] font-black rounded-lg hover:bg-rose-400 transition-all uppercase tracking-widest disabled:opacity-50"
                             >
                               Void
                             </button>
                           </div>
                         ) : (
-                          <span className="text-[7px] md:text-[8px] font-black text-gray-700 uppercase tracking-widest opacity-30 group-hover:opacity-100 transition-opacity">
-                            STABLE X1
+                          <span className="text-[7px] md:text-[8px] font-black text-gray-700 uppercase tracking-widest opacity-20 group-hover:opacity-100 transition-opacity italic">
+                            STABLE_UNIT_X1
                           </span>
                         )}
                       </td>
@@ -251,7 +236,7 @@ const EventRegistrations: React.FC = () => {
         </div>
 
         <div className="text-center opacity-20 pb-4">
-          <p className="text-[7px] md:text-[8px] font-bold text-gray-500 uppercase tracking-[0.5em] italic">Data parity verified via Node Cluster x84</p>
+          <p className="text-[7px] md:text-[8px] font-black text-gray-500 uppercase tracking-[0.5em] italic">Data parity verified via Node Cluster x84</p>
         </div>
       </div>
     </div>

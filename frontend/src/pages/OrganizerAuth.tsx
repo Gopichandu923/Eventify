@@ -98,7 +98,7 @@ const OrganizerAuth: React.FC = () => {
                     onError={() => setError("Google Access Failed")}
                     theme="filled_black"
                     shape="pill"
-                    width="100%"
+                    width="320"
                     text={isLogin ? "signin_with" : "signup_with"}
                   />
                 </div>

@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { getAllEvents } from "../api";
 
 interface Event {
@@ -11,46 +12,33 @@ interface Event {
 }
 
 const Home: React.FC = () => {
-  const [events, setEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["events"],
+    queryFn: async () => {
+      const res = await getAllEvents();
+      const fetchedEvents = Array.isArray(res.data) ? res.data : [];
+      
+      // Sort: Active events first, then by date (soonest to latest)
+      return [...fetchedEvents].sort((a: Event, b: Event) => {
+        const isAExpired = new Date(a.date) < new Date();
+        const isBExpired = new Date(b.date) < new Date();
 
-  useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const res = await getAllEvents();
-        const fetchedEvents = Array.isArray(res.data) ? res.data : [];
+        if (!isAExpired && isBExpired) return -1;
+        if (isAExpired && !isBExpired) return 1;
 
-        // Sort: Active events first, then by date (soonest to latest)
-        const sortedEvents = [...fetchedEvents].sort((a, b) => {
-          const isAExpired = new Date(a.date) < new Date();
-          const isBExpired = new Date(b.date) < new Date();
+        return new Date(a.date).getTime() - new Date(b.date).getTime();
+      });
+    },
+  });
 
-          if (!isAExpired && isBExpired) return -1;
-          if (isAExpired && !isBExpired) return 1;
+  const events = data || [];
 
-          return new Date(a.date).getTime() - new Date(b.date).getTime();
-        });
-
-        setEvents(sortedEvents);
-      } catch (err: any) {
-        console.error(err);
-        setError("Failed to fetch events.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchEvents();
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-xl text-gray-700 font-medium">
-            Loading public events...
-          </p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <p className="text-xs font-black text-gray-500 uppercase tracking-widest animate-pulse">Synchronizing Grid...</p>
         </div>
       </div>
     );
@@ -58,22 +46,21 @@ const Home: React.FC = () => {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center bg-red-50 border border-red-200 rounded-xl p-8 max-w-md">
-          <svg
-            className="w-16 h-16 text-red-500 mx-auto mb-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+      <div className="flex items-center justify-center min-h-[60vh] px-4">
+        <div className="text-center glass-card p-8 rounded-3xl border-rose-500/20 max-w-sm w-full">
+           <div className="w-12 h-12 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-rose-500/10">
+            <svg className="w-6 h-6 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </div>
+          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 opacity-50">Connection Error</p>
+          <p className="text-sm font-bold text-rose-400 uppercase tracking-tight italic">Protocol Failure: Grid Unreachable</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-6 w-full py-3 bg-white/5 hover:bg-white/10 text-white text-[10px] font-black uppercase tracking-widest rounded-xl border border-white/10 transition-all"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            ></path>
-          </svg>
-          <p className="text-xl text-red-600 font-semibold">Error: {error}</p>
+            Retry Sync
+          </button>
         </div>
       </div>
     );
@@ -108,13 +95,13 @@ const Home: React.FC = () => {
 
         {events.length === 0 ? (
           <div className="glass-card rounded-[2rem] p-20 text-center border-white/5">
-            <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/10">
-              <svg className="w-10 h-10 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/10">
+              <svg className="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             </div>
             <h3 className="text-2xl font-black text-white mb-2 uppercase tracking-tight">No Events Found</h3>
-            <p className="text-gray-500 font-medium text-sm">Quiet at the moment. Check back soon for new arrivals.</p>
+            <p className="text-gray-500 font-medium text-xs uppercase tracking-widest opacity-50 italic">Empty Node Registry</p>
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2">
@@ -146,12 +133,12 @@ const Home: React.FC = () => {
                     </div>
                   </div>
 
-                  <h3 className="text-2xl font-black text-white mb-6 group-hover:text-indigo-400 transition-colors uppercase tracking-tight">
+                  <h3 className="text-xl md:text-2xl font-black text-white mb-6 group-hover:text-indigo-400 transition-colors uppercase tracking-tight italic">
                     {event.title}
                   </h3>
 
                   <div className="space-y-4 mb-8 flex-grow">
-                    <div className="flex flex-wrap gap-4 text-gray-400 text-[10px] font-black uppercase tracking-[0.15em]">
+                    <div className="flex flex-wrap gap-4 text-gray-400 text-[10px] font-black uppercase tracking-widest">
                       <div className="flex items-center gap-1.5">
                         <svg className="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -168,7 +155,7 @@ const Home: React.FC = () => {
                   </div>
 
                   <Link to={`/events/${event._id}`} className="mt-auto">
-                    <button className="w-full py-4 bg-white text-indigo-600 font-black rounded-xl transition-all shadow-xl shadow-white/5 flex items-center justify-center gap-3 uppercase tracking-widest text-xs hover:bg-neutral-100">
+                    <button className="w-full py-4 bg-white text-indigo-600 font-black rounded-xl transition-all shadow-xl shadow-white/5 flex items-center justify-center gap-3 uppercase tracking-widest text-[10px] hover:bg-neutral-100">
                       Reserve Access
                     </button>
                   </Link>

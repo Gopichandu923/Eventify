@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { getMyEvents, logout } from "../api";
 
 interface Event {
@@ -11,47 +12,32 @@ interface Event {
 }
 
 const OrganizerDashboard: React.FC = () => {
-  const [events, setEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-
   const organizerName: string | null = localStorage.getItem("organizerName");
   const token = localStorage.getItem("token");
 
-  useEffect(() => {
-    const fetchEvents = async () => {
+  const { data: events, isLoading, error } = useQuery({
+    queryKey: ["my-events"],
+    queryFn: async () => {
       if (!token) {
-        setLoading(false);
         navigate("/organizer/auth");
-        return;
+        return [];
       }
-      try {
-        const res = await getMyEvents();
-        const fetchedEvents = Array.isArray(res.data) ? res.data : [];
+      const res = await getMyEvents();
+      const fetchedEvents = Array.isArray(res.data) ? res.data : [];
 
-        const sortedEvents = [...fetchedEvents].sort((a, b) => {
-          const isAExpired = new Date(a.date) < new Date();
-          const isBExpired = new Date(b.date) < new Date();
+      return [...fetchedEvents].sort((a: Event, b: Event) => {
+        const isAExpired = new Date(a.date) < new Date();
+        const isBExpired = new Date(b.date) < new Date();
 
-          if (!isAExpired && isBExpired) return -1;
-          if (isAExpired && !isBExpired) return 1;
+        if (!isAExpired && isBExpired) return -1;
+        if (isAExpired && !isBExpired) return 1;
 
-          return new Date(a.date).getTime() - new Date(b.date).getTime();
-        });
-
-        setEvents(sortedEvents);
-      } catch (err: any) {
-        setError(
-          err.response?.data?.message ||
-          "Failed to fetch your events. Token might be expired."
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchEvents();
-  }, [token, navigate]);
+        return new Date(a.date).getTime() - new Date(b.date).getTime();
+      });
+    },
+    enabled: !!token,
+  });
 
   const handleLogout = async () => {
     try {
@@ -59,54 +45,48 @@ const OrganizerDashboard: React.FC = () => {
       navigate("/organizer/auth");
     } catch (err) {
       console.error("Logout failed", err);
-      // fallback even if logout api fails
       localStorage.removeItem("token");
       localStorage.removeItem("organizerName");
       navigate("/organizer/auth");
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-xl text-gray-700 font-medium">
-            Loading dashboard...
-          </p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest animate-pulse">Syncing Dashboard...</p>
         </div>
       </div>
     );
   }
 
-  if (error && events.length === 0) {
+  if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center bg-red-50 border border-red-200 rounded-xl p-8 max-w-md">
-          <svg
-            className="w-16 h-16 text-red-500 mx-auto mb-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            ></path>
-          </svg>
-          <p className="text-red-600 text-xl mb-6">{error}</p>
+      <div className="flex items-center justify-center min-h-[60vh] px-4">
+        <div className="text-center glass-card p-10 rounded-3xl border-rose-500/20 max-w-sm w-full">
+           <div className="w-12 h-12 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-5 border border-rose-500/10">
+            <svg className="w-6 h-6 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-black text-white mb-2 uppercase tracking-tight italic">Registry Sync Lost</h3>
+          <p className="text-gray-500 text-[9px] font-black uppercase tracking-widest leading-relaxed mb-8 opacity-60">
+            Authentication token may have expired or node connection was interrupted.
+          </p>
           <Link
             to="/organizer/auth"
-            className="inline-block px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition duration-200"
+            className="block w-full py-4 bg-white text-indigo-600 font-black text-[10px] rounded-xl hover:bg-neutral-100 transition-all uppercase tracking-widest shadow-xl shadow-white/5"
           >
-            Go to Login
+            Re-Authenticate
           </Link>
         </div>
       </div>
     );
   }
+
+  const eventList = events || [];
 
   return (
     <div className="max-w-6xl mx-auto pb-10">
@@ -124,11 +104,11 @@ const OrganizerDashboard: React.FC = () => {
                 </svg>
               </div>
               <div>
-                <h1 className="text-xl md:text-3xl font-black text-white tracking-tight mb-0.5">
+                <h1 className="text-xl md:text-3xl font-black text-white tracking-tight mb-0.5 italic">
                   Welcome, <span className="text-indigo-200">{organizerName || "Organizer"}</span>
                 </h1>
-                <p className="text-indigo-200/50 text-[8px] md:text-[10px] font-black uppercase tracking-widest leading-relaxed">
-                  Status: Operational
+                <p className="text-indigo-200/50 text-[8px] md:text-[10px] font-black uppercase tracking-widest leading-relaxed italic opacity-80">
+                  Status: Fully Operational • Port 84
                 </p>
               </div>
             </div>
@@ -140,7 +120,7 @@ const OrganizerDashboard: React.FC = () => {
               <svg className="w-3.5 h-3.5 mr-2 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7" />
               </svg>
-              Log Out
+              End Session
             </button>
           </div>
         </div>
@@ -150,8 +130,8 @@ const OrganizerDashboard: React.FC = () => {
       <div className="flex flex-col md:flex-row gap-3 mb-6 px-4 md:px-0">
         <div className="flex-1 glass-card p-4 md:p-6 rounded-2xl md:rounded-[2rem] border-white/5 flex items-center justify-between">
           <div>
-            <p className="text-[8px] md:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-0.5">Impact Overview</p>
-            <h3 className="text-xl md:text-2xl font-black text-white italic">{events.length} <span className="text-gray-600 font-bold ml-1 text-sm md:text-base">Events</span></h3>
+            <p className="text-[8px] md:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-0.5 opacity-60">Impact Overview</p>
+            <h3 className="text-xl md:text-2xl font-black text-white italic">{eventList.length} <span className="text-gray-600 font-black ml-1 text-xs md:text-sm uppercase tracking-widest">Registries</span></h3>
           </div>
           <div className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-indigo-600/10 flex items-center justify-center">
             <svg className="w-4 h-4 md:w-5 md:h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -172,35 +152,26 @@ const OrganizerDashboard: React.FC = () => {
         </Link>
       </div>
 
-      {error && (
-        <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 p-6 rounded-3xl font-bold mb-10 animate-pulse flex items-center gap-4">
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
-          {error}
-        </div>
-      )}
-
-      {events.length === 0 ? (
-        <div className="glass-card rounded-[3rem] p-24 text-center border-white/5 border-dashed border-2 bg-transparent">
-          <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-8 border border-white/10">
-            <svg className="w-12 h-12 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      {eventList.length === 0 ? (
+        <div className="glass-card rounded-[2.5rem] md:rounded-[3rem] p-12 md:p-24 text-center border-white/5 border-dashed border-2 bg-transparent mx-4 md:mx-0">
+          <div className="w-20 h-20 md:w-24 md:h-24 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-8 border border-white/10">
+            <svg className="w-10 h-10 md:w-12 md:h-12 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
           </div>
-          <h3 className="text-3xl font-black text-white mb-4">Start Your Legacy</h3>
-          <p className="text-gray-500 mb-10 max-w-sm mx-auto font-medium leading-relaxed">
-            Your dashboard is quiet, but it's full of potential. Create your first event and watch the registrations roll in.
+          <h3 className="text-2xl md:text-3xl font-black text-white mb-4 uppercase tracking-tight italic">Start Your Legacy</h3>
+          <p className="text-gray-500 mb-10 max-w-sm mx-auto text-xs md:text-sm font-black uppercase tracking-widest leading-relaxed opacity-60">
+            Your dashboard is quiet, but it's full of potential. Initialize your first node and watch the network expand.
           </p>
           <Link to="/organizer/create-event">
-            <button className="px-10 py-5 bg-white text-indigo-600 font-black rounded-2xl hover:bg-indigo-50 transition-all shadow-xl shadow-white/5">
-              Launch First Event
+            <button className="px-8 md:px-10 py-4 md:py-5 bg-white text-indigo-600 font-black rounded-xl md:rounded-2xl hover:bg-indigo-50 transition-all shadow-xl shadow-white/5 uppercase tracking-widest text-[10px]">
+              Initialize Hub
             </button>
           </Link>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6">
-          {events.map((event) => (
+          {eventList.map((event) => (
             <div
               key={event._id}
               className="group glass-card rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden hover:border-indigo-500/30 transition-all duration-500 border-white/5 mx-4 md:mx-0"
@@ -211,13 +182,13 @@ const OrganizerDashboard: React.FC = () => {
                     <h4 className="text-xl md:text-3xl font-black text-white group-hover:text-indigo-400 transition-colors uppercase italic truncate max-w-full">
                       {event.title}
                     </h4>
-                    <div className="flex gap-1.5">
+                    <div className="flex gap-1.5 font-black">
                        {new Date(event.date) < new Date() && (
-                        <span className="px-2 py-0.5 md:px-3 md:py-1 bg-rose-500/10 text-rose-400 text-[8px] md:text-[10px] font-black uppercase tracking-widest border border-rose-500/20 rounded-full">
+                        <span className="px-2 py-0.5 md:px-3 md:py-1 bg-rose-500/10 text-rose-400 text-[8px] md:text-[9px] uppercase tracking-widest border border-rose-500/20 rounded-full">
                           Completed
                         </span>
                       )}
-                      <span className={`px-2 py-0.5 md:px-3 md:py-1 text-[8px] md:text-[10px] font-black uppercase tracking-widest border rounded-full ${
+                      <span className={`px-2 py-0.5 md:px-3 md:py-1 text-[8px] md:text-[9px] uppercase tracking-widest border rounded-full ${
                         event.approvalMethod === "manual" ? "bg-amber-500/10 text-amber-400 border-amber-500/20" : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
                       }`}>
                         {event.approvalMethod === "manual" ? "Manual" : "Auto"}
@@ -225,14 +196,14 @@ const OrganizerDashboard: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap gap-x-6 md:gap-x-10 gap-y-3 text-[10px] md:text-sm font-bold text-gray-500">
+                  <div className="flex flex-wrap gap-x-6 md:gap-x-10 gap-y-3 text-[10px] md:text-[11px] font-black uppercase tracking-widest text-gray-500">
                     <div className="flex items-center gap-2 md:gap-3">
                       <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg bg-white/5 flex items-center justify-center text-indigo-400">
                         <svg className="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                       </div>
-                      <span className="text-gray-300">{new Date(event.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                      <span className="text-gray-400">{new Date(event.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                     </div>
                     <div className="flex items-center gap-2 md:gap-3">
                       <div className={`w-7 h-7 md:w-8 md:h-8 rounded-lg bg-white/5 flex items-center justify-center ${event.availableTickets > 0 ?'text-emerald-400' : 'text-rose-400'}`}>
@@ -240,21 +211,21 @@ const OrganizerDashboard: React.FC = () => {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
                         </svg>
                       </div>
-                      <span className="text-gray-300">{event.availableTickets} Slots</span>
+                      <span className="text-gray-400">{event.availableTickets} Slots Available</span>
                     </div>
                   </div>
                 </div>
 
                 <div className="flex flex-row md:flex-nowrap gap-3">
                   <Link to={`/events/${event._id}`} className="flex-1">
-                    <button className="w-full h-full px-4 py-3 md:px-6 md:py-4 bg-white/5 hover:bg-white/10 text-white font-bold rounded-xl md:rounded-2xl border border-white/10 transition-all flex items-center justify-center gap-2 text-[10px] md:text-sm uppercase tracking-widest">
-                       <span className="hidden sm:inline">Preview</span>
+                    <button className="w-full h-full px-4 py-3 md:px-6 md:py-4 bg-white/5 hover:bg-white/10 text-white font-black rounded-xl md:rounded-2xl border border-white/10 transition-all flex items-center justify-center gap-2 text-[9px] md:text-[10px] uppercase tracking-widest">
+                       <span className="hidden sm:inline">Preview Unit</span>
                        <span className="sm:hidden text-indigo-400">View</span>
                     </button>
                   </Link>
                   <Link to={`/organizer/registrations/${event._id}`} className="flex-1">
-                    <button className="w-full h-full px-4 py-3 md:px-8 md:py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-xl md:rounded-2xl transition-all shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 text-[10px] md:text-sm uppercase tracking-widest">
-                      Manage
+                    <button className="w-full h-full px-4 py-3 md:px-8 md:py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-xl md:rounded-2xl transition-all shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 text-[9px] md:text-[10px] uppercase tracking-widest">
+                      Manage Registry
                     </button>
                   </Link>
                 </div>
