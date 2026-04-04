@@ -10,6 +10,7 @@ import CreateEvent from "./pages/CreateEvent.tsx";
 import EventRegistrations from "./pages/EventRegistrations.tsx";
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
 import TicketLookup from "./pages/TicketLookup.tsx";
+import TicketVerification from "./pages/TicketVerification.tsx";
 
 const App: React.FC = () => {
   return (
@@ -38,6 +39,10 @@ const App: React.FC = () => {
             <Route path="/" element={<Home />} />
             <Route path="/events/:id" element={<PublicEvent />} />
             <Route path="/tickets/:ticketId" element={<TicketPage />} />
+            <Route
+              path="/tickets/verify/:ticketId"
+              element={<TicketVerification />}
+            />
             <Route path="/events/:eventId/tickets" element={<TicketLookup />} />
 
             {/* Organizer Auth */}
