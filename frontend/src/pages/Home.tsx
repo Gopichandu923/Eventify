@@ -20,7 +20,8 @@ const Home: React.FC = () => {
       try {
         const res = await getAllEvents();
         setEvents(res.data);
-      } catch (err) {
+      } catch (err: any) {
+        console.error(err);
         setError("Failed to fetch events.");
       } finally {
         setLoading(false);
