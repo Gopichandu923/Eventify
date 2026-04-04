@@ -37,8 +37,8 @@ const PublicEvent: React.FC = () => {
       } catch (err: any) {
         setMessage(
           err.response?.data?.message ||
-            err.message ||
-            "Event not found or server error."
+          err.message ||
+          "Event not found or server error."
         );
         setEvent(null);
       } finally {
@@ -71,9 +71,9 @@ const PublicEvent: React.FC = () => {
     } catch (err: any) {
       setMessage(
         "Registration failed: " +
-          (err.response?.data?.message ||
-            err.response?.data?.msg ||
-            "Server error.")
+        (err.response?.data?.message ||
+          err.response?.data?.msg ||
+          "Server error.")
       );
       setTicketId(null);
     }
@@ -127,11 +127,17 @@ const PublicEvent: React.FC = () => {
   }
 
   const isSoldOut = event.availableTickets <= 0;
+  const isExpired = new Date(event.date) < new Date();
 
   return (
     <div className="max-w-4xl mx-auto">
       <div className="bg-white shadow-2xl rounded-2xl overflow-hidden">
-        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-8 text-white">
+        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-8 text-white relative">
+          {isExpired && (
+            <div className="absolute top-4 right-4 bg-red-600 text-white px-4 py-1 rounded-full font-bold shadow-lg animate-pulse">
+              COMPLETED
+            </div>
+          )}
           <h2 className="text-4xl font-extrabold mb-2">{event.title}</h2>
           <div className="flex flex-wrap gap-4 text-indigo-100">
             <div className="flex items-center">
@@ -181,11 +187,10 @@ const PublicEvent: React.FC = () => {
           </p>
 
           <div
-            className={`inline-block px-6 py-3 rounded-full font-bold text-lg mb-6 ${
-              isSoldOut
-                ? "bg-red-100 text-red-700"
-                : "bg-green-100 text-green-700"
-            }`}
+            className={`inline-block px-6 py-3 rounded-full font-bold text-lg mb-6 ${isSoldOut
+              ? "bg-red-100 text-red-700"
+              : "bg-green-100 text-green-700"
+              }`}
           >
             {isSoldOut
               ? "SOLD OUT"
@@ -194,11 +199,10 @@ const PublicEvent: React.FC = () => {
 
           {message && (
             <div
-              className={`p-4 mb-6 rounded-xl font-medium flex items-start ${
-                ticketId
-                  ? "bg-green-50 text-green-800 border border-green-200"
-                  : "bg-red-50 text-red-800 border border-red-200"
-              }`}
+              className={`p-4 mb-6 rounded-xl font-medium flex items-start ${ticketId
+                ? "bg-green-50 text-green-800 border border-green-200"
+                : "bg-red-50 text-red-800 border border-red-200"
+                }`}
             >
               <svg
                 className="w-6 h-6 mr-3 flex-shrink-0"
@@ -281,11 +285,10 @@ const PublicEvent: React.FC = () => {
                   Register Now
                 </h3>
                 <span
-                  className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                    event.approvalMode === "auto"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-yellow-100 text-yellow-700"
-                  }`}
+                  className={`px-3 py-1 rounded-full text-sm font-semibold ${event.approvalMode === "auto"
+                    ? "bg-green-100 text-green-700"
+                    : "bg-yellow-100 text-yellow-700"
+                    }`}
                 >
                   {event.approvalMode === "auto"
                     ? "Instant Approval"
@@ -293,7 +296,7 @@ const PublicEvent: React.FC = () => {
                 </span>
               </div>
 
-              {isSoldOut ? (
+              {isSoldOut || isExpired ? (
                 <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
                   <svg
                     className="w-16 h-16 text-red-500 mx-auto mb-3"
@@ -309,7 +312,9 @@ const PublicEvent: React.FC = () => {
                     ></path>
                   </svg>
                   <p className="text-red-700 font-bold text-lg">
-                    Sorry, this event is sold out.
+                    {isExpired
+                      ? "This event has passed and is no longer accepting registrations."
+                      : "Sorry, this event is sold out."}
                   </p>
                 </div>
               ) : (

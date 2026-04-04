@@ -44,7 +44,7 @@ const OrganizerDashboard: React.FC = () => {
       } catch (err: any) {
         setError(
           err.response?.data?.message ||
-            "Failed to fetch your events. Token might be expired."
+          "Failed to fetch your events. Token might be expired."
         );
       } finally {
         setLoading(false);
@@ -255,15 +255,14 @@ const OrganizerDashboard: React.FC = () => {
                       <div className="flex gap-2 ml-4">
                         {new Date(event.date) < new Date() && (
                           <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700">
-                            Expired
+                            Completed
                           </span>
                         )}
                         <span
-                          className={`px-3 py-1 rounded-full text-xs font-bold ${
-                            event.approvalMethod === "manual"
+                          className={`px-3 py-1 rounded-full text-xs font-bold ${event.approvalMethod === "manual"
                               ? "bg-amber-100 text-amber-700"
                               : "bg-green-100 text-green-700"
-                          }`}
+                            }`}
                         >
                           {event.approvalMethod === "manual"
                             ? "Manual Approval"
@@ -307,11 +306,10 @@ const OrganizerDashboard: React.FC = () => {
                         </svg>
                         <span className="font-medium">Tickets Left:</span>
                         <span
-                          className={`ml-2 font-bold ${
-                            event.availableTickets > 0
+                          className={`ml-2 font-bold ${event.availableTickets > 0
                               ? "text-green-600"
                               : "text-red-600"
-                          }`}
+                            }`}
                         >
                           {event.availableTickets}
                         </span>
