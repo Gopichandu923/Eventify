@@ -39,7 +39,7 @@ export const registerUser = async (req, res) => {
     });
 
     return res.status(201).json({
-      ticketId: registration.ticketId,
+      ticketId: registration._id,
       status: registration.status,
       msg: "Registration submitted successfully",
     });
@@ -104,23 +104,25 @@ export const updateRegistration = async (req, res) => {
 
 export const getTicketDetails = async (req, res) => {
   const { id } = req.params;
-  if (!id) {
-    return res.status(400).json({ message: "Please provide ticket id." });
+
+  if (!id || id === "undefined" || id === "null") {
+    return res.status(400).json({ message: "Invalid ticket ID provided." });
   }
 
   try {
-    // Find by unique ticketId string
     const ticket = await Registration.findById(id).populate(
       "event",
       "title description date venue"
     );
 
     if (!ticket) {
-      return res.status(404).json({ message: "Ticket not found." });
+      return res.status(404).json({ message: "Ticket record not found. Please register again or contact support." });
     }
+
     if (ticket.status !== "Approved") {
       return res.status(403).json({
-        message: `Ticket status is ${ticket.status}. Awaiting organizer approval.`,
+        message: `Your registration status is currently "${ticket.status}". Tickets are only available for viewing after organizer approval.`,
+        status: ticket.status,
       });
     }
 
@@ -132,17 +134,19 @@ export const getTicketDetails = async (req, res) => {
       event: ticket.event,
     });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Internal server error." });
+    if (error.name === "CastError") {
+      return res.status(400).json({ message: "Invalid Ticket ID format. Please check your link." });
+    }
+    console.error("Ticket Fetch Error:", error);
+    return res.status(500).json({ message: "Server error while fetching ticket details." });
   }
 };
 
 export const getTicketId = async (req, res) => {
   const { eventId, email } = req.query;
+
   if (!eventId || !email) {
-    return res
-      .status(400)
-      .json({ message: "Please provide eventId and email." });
+    return res.status(400).json({ message: "Please provide both Event ID and Email address for lookup." });
   }
 
   try {
@@ -152,26 +156,22 @@ export const getTicketId = async (req, res) => {
     }).populate("event", "title description date venue");
 
     if (!ticket) {
-      return res.status(404).json({ message: "Ticket not found." });
+      return res.status(404).json({ message: "No ticket found for this email and event. Please verify your details." });
     }
 
-    if (ticket.status !== "Approved") {
-      return res.status(200).json({
-        ticketId: ticket._id,
-        status: ticket.status,
-        message: `Ticket status is ${ticket.status}. Awaiting organizer action.`,
-      });
-    }
-
+    // Return the ticket details. Note: If not approved, we still return the ID so the user can check the status page
     return res.json({
       ticketId: ticket._id,
       name: ticket.name,
       email: ticket.email,
       status: ticket.status,
+      message: ticket.status === "Approved"
+        ? "Ticket found and ready for download."
+        : `Ticket found. Current status: ${ticket.status}.`,
       event: ticket.event,
     });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Internal server error." });
+    console.error("Ticket Lookup Error:", error);
+    return res.status(500).json({ message: "Server error while performing ticket lookup." });
   }
 };
