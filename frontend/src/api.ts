@@ -2,60 +2,62 @@ import axios from "axios";
 
 const api = axios.create({
   baseURL: "https://eventify-backend-flax.vercel.app/api",
+  withCredentials: true,
 });
 
-// Helper for token header
-const getConfig = (token: string) => ({
-  headers: {
-    Authorization: `Bearer ${token}`,
-  },
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });
 
-export const signUp = async (data: any) => {
-  return await api.post("/auth/register", data);
-};
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    const isRefreshRequest = originalRequest.url.includes("/auth/refresh");
 
-export const logIn = async (data: any) => {
-  return await api.post("/auth/login", data);
-};
+    if (error.response && error.response.status === 401 && !originalRequest._retry && !isRefreshRequest) {
+      originalRequest._retry = true;
+      try {
+        const { data } = await api.get("/auth/refresh");
+        localStorage.setItem("token", data.token);
+        originalRequest.headers.Authorization = `Bearer ${data.token}`;
+        return api(originalRequest);
+      } catch (refreshError) {
+        localStorage.removeItem("token");
+        // Only redirect if we are not already on the auth page
+        if (!window.location.pathname.includes("/auth")) {
+          window.location.href = "/organizer/auth";
+        }
+        return Promise.reject(refreshError);
+      }
+    }
+    return Promise.reject(error);
+  }
+);
 
-export const createEvent = async (data: any, token: string) => {
-  return await api.post("/events", data, getConfig(token));
-};
+export const signUp = (data: any) => api.post("/auth/register", data);
+export const logIn = (data: any) => api.post("/auth/login", data);
+export const createEvent = (data: any) => api.post("/events", data);
+export const getAllEvents = () => api.get("/events/all");
+export const getMyEvents = () => api.get("/events");
+export const getEventDetails = (id: string) => api.get(`/events/${id}`);
+export const getEventRegistrations = (id: string) => api.get(`/events/${id}/registrations`);
+export const registerForEvent = (data: any) => api.post(`/registrations`, data);
+export const getTicketDetails = (ticketId: string) => api.get(`/registrations/tickets/${ticketId}`);
+export const getTicketId = (eventId: string, email: string) =>
+  api.get(`/registrations/tickets/lookup/`, { params: { eventId, email } });
 
-export const getAllEvents = async () => {
-  return await api.get("/events/all");
-};
+export const updateRegistrationStatus = (id: string, data: { status: "Approved" | "Rejected" }) =>
+  api.put(`/registrations/${id}/status`, data);
 
-export const getMyEvents = async (token: string) => {
-  return await api.get("/events", getConfig(token));
-};
+export const googleAuth = (credential: string) => api.post("/auth/google", { credential });
 
-export const getEventDetails = async (id: string) => {
-  return await api.get(`/events/${id}`);
-};
-
-export const getEventRegistrations = async (id: string, token: string) => {
-  return await api.get(`/events/${id}/registrations`, getConfig(token));
-};
-
-export const registerForEvent = async (data: any) => {
-  return await api.post(`/registrations`, data);
-};
-
-export const getTicketDetails = async (ticketId: string) => {
-  return await api.get(`/registrations/tickets/${ticketId}`);
-};
-export const getTicketId = async (eventId: string, email: string) => {
-  return await api.get(`/registrations/tickets/lookup/`, {
-    params: { eventId, email },
-  });
-};
-
-export const updateRegistrationStatus = async (
-  id: string,
-  data: { status: "Approved" | "Rejected" },
-  token: string
-) => {
-  return await api.put(`/registrations/${id}/status`, data, getConfig(token));
+export const logout = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("organizerName");
+  return api.post("/auth/logout");
 };
