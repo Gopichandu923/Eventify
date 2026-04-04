@@ -7,7 +7,7 @@ export const protect = async (req, res, next) => {
   const header = req.headers["authorization"];
   const [type, token] = header.split(" ");
   if (type !== "Bearer" || !token) {
-    return res.status(400).json({
+    return res.status(401).json({
       message: "Please provide token in this format 'Bearer <Token>' .",
     });
   }
@@ -18,9 +18,9 @@ export const protect = async (req, res, next) => {
   } catch (error) {
     if (error.name === "TokenExpiredError") {
       return res
-        .status(400)
-        .json({ message: "Token expired .Please login again." });
+        .status(401)
+        .json({ message: "Token expired." });
     }
-    return res.status(400).json({ message: error.message });
+    return res.status(401).json({ message: error.message });
   }
 };
