@@ -1,128 +1,117 @@
-Eventify – MERN Event Ticketing Platform
-Eventify is a full‑stack MERN web application that allows organizers to create events and manage registrations, while users can register for events and receive tickets through auto or manual approval workflows.
-This project is built as a personal project to demonstrate real‑world full‑stack development using MongoDB, Express, React, and Node.js.
-________________________________________
-🚀 Features
-👤 Organizer (Authenticated)
-•	Sign up & log in using JWT authentication
-•	Create events with:
-o	Title
-o	Description
-o	Date & time
-o	Venue
-o	Ticket limit
-o	Approval mode (Auto / Manual)
-•	View all events created by the organizer
-•	View registrations for each event
-•	Approve or reject registrations (manual approval mode)
-🌍 Public User
-•	Access public event registration link
-•	Register for an event without login
-•	Auto‑approval events → ticket approved instantly
-•	Manual‑approval events → registration marked as pending
-🎫 Ticket System
-•	Ticket generated only after approval
-•	Ticket page displays:
-o	Event details
-o	User details
-o	Unique Ticket ID
-________________________________________
-🛠 Tech Stack
-Frontend
-•	React (Vite)
-•	React Router
-•	Tailwind CSS
-•	Axios
-Backend
-•	Node.js
-•	Express.js
-•	MongoDB + Mongoose
-•	JWT Authentication
-•	bcrypt (password hashing)
-________________________________________
-📂 Project Structure
-eventify-mern/
-├── backend/
-│   ├── config/
-│   ├── controllers/
-│   ├── middleware/
-│   ├── models/
-│   ├── routes/
-│   ├── server.js
-│   └── package.json
-│
-├── frontend/
-│   ├── src/
-|   |   |-- assests/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── api.js
-│   │   └── App.jsx
-│   └── package.json
-└── README.md
-________________________________________
-⚙️ Installation & Setup
-Prerequisites
-•	Node.js (v18+ recommended)
-•	MongoDB (local or Atlas)
-•	npm or yarn
-________________________________________
-🔧 Backend Setup
-cd backend
+# 🎟️ Eventify – Event Registration & Digital Ticketing System
+
+Eventify is a full-stack **MERN** application designed to streamline event creation, attendee registration, and digital ticket management. It offers a secure organizer dashboard for event and registration approvals, along with a simple public flow for attendees to register and retrieve their tickets.
+
+---
+
+## 🚀 Project Overview
+
+Eventify allows:
+
+- **Organizers** to create events, review registrations, and approve or reject attendees.
+- **Attendees** to register for events and retrieve their unique digital tickets using their email and event ID.
+
+The system ensures a smooth and transparent event registration workflow with secure authentication and easy ticket access.
+
+---
+
+## ✨ Key Features
+
+### 👨‍💼 For Organizers (Protected Routes)
+
+- **Event Management**
+  - Create, view, and manage events (title, venue, date).
+- **Registration Review**
+  - View pending registrations.
+  - Manually approve or reject attendee registrations.
+- **Authentication**
+  - Secure JWT-based login system for organizers.
+
+### 👥 For Attendees (Public Access)
+
+- **Public Event Registration**
+  - Simple registration form.
+  - Tickets are created with a default **Pending** status.
+- **Ticket Lookup**
+  - Retrieve ticket details using **email + event ID**.
+- **Digital Ticket Page**
+  - View ticket and event details.
+  - Print or download **PDF tickets** for approved registrations.
+
+---
+
+## 🛠️ Tech Stack
+
+### Frontend (Client)
+
+- **React** – UI development
+- **TypeScript** – Type safety and maintainability
+- **React Router** – Page navigation
+- **Axios** – API communication
+- **Tailwind CSS** – Utility-first styling
+
+### Backend (API)
+
+- **Node.js / Express** – Server framework
+- **MongoDB / Mongoose** – Database and ODM
+- **JWT (JSON Web Tokens)** – Authentication & authorization
+- **Bcrypt** – Secure password hashing
+
+---
+
+## 💻 Installation & Setup
+
+### Prerequisites
+
+- **Node.js** v18+
+- **MongoDB** (Local or MongoDB Atlas)
+
+---
+
+### 1️⃣ Backend Setup
+
+```bash
+# Clone the repository
+git clone [YOUR_REPO_URL]
+
+cd Eventify/backend
+
+# Install dependencies
 npm install
-Create a .env file in the backend folder:
+
+# Create .env file for environment varibles
+
+# Clone the repository
+git clone [YOUR_REPO_URL]
+cd Eventify/backend
+
+# Install dependencies
+npm install
+
+# Create a .env file in the backend directory and add the following:
 PORT=5000
-MONGO_URI=mongodb://localhost:27017/eventify
-JWT_SECRET=your_secret_key
-Start the backend server:
-npm run dev
-Backend runs at:
-http://localhost:5000
-________________________________________
-🎨 Frontend Setup
-cd frontend
+NODE_ENV=development
+MONGO_URI=[YOUR_MONGO_DB_CONNECTION_STRING]
+JWT_SECRET=[A_RANDOM_LONG_STRING_FOR_SECURITY]
+JWT_EXPIRY=[TOKEN_EXPIRY_DETAILS]
+SALT_ROUNDS=[NO_OF_ROUNDS_FOR_PASSWORD_HASHING]
+
+# Run the server
+npm start
+```
+
+### Frontend Setup
+
+```bash
+cd ../frontend
+
+#Update the api.tsx file by give your baseUrl
+baseUrl=[BASE_URL]
+
+# Install dependencies
 npm install
+
+# Run the application
 npm run dev
-Frontend runs at:
-http://localhost:5173
-________________________________________
-🔑 API Overview
-Authentication
-•	POST /api/auth/signup – Organizer signup
-•	POST /api/auth/login – Organizer login
-Events
-•	POST /api/events – Create event (auth required)
-•	GET /api/events/my – Get organizer events
-•	GET /api/events/:id – Public event details
-Registrations
-•	POST /api/registrations/event/:eventId – Register for event (public)
-•	GET /api/registrations/event/:eventId – View registrations (organizer)
-•	PUT /api/registrations/:regId – Approve / Reject registration
-•	GET /api/registrations/:regId – View ticket details
-________________________________________
-🧠 Key Concepts Demonstrated
-•	RESTful API design
-•	JWT‑based authentication
-•	Role‑based flow (Organizer vs Public User)
-•	MongoDB schema relationships
-•	Auto vs manual approval logic
-•	Clean folder structure
-•	Reusable frontend components
-________________________________________
-🌱 Future Enhancements
-•	Email notifications on approval
-•	QR code or PDF ticket generation
-•	Organizer authorization checks
-•	Pagination & search for events
-•	Improved UI/UX
-•	Deployment (Render / Vercel)
-________________________________________
-👨‍💻 Author
-Gopi Chandu
-Full‑Stack Developer (MERN)
-________________________________________
-⭐ If you like this project
-Give it a ⭐ on GitHub and feel free to fork or contribute!
-________________________________________
-📌 Project Tagline
-Eventify – Build events. Manage registrations. Issue tickets.
+
+```
