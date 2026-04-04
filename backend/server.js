@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
 import connect from "./config/db.js";
 
@@ -11,8 +12,9 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors());
+app.use(cors({ origin: ["https://eventify-pied-six.vercel.app", "http://localhost:5173"], credentials: true }));
 app.use(express.json());
+app.use(cookieParser());
 
 connect();
 
