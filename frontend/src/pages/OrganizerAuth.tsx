@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { signUp, logIn } from "../api";
+import { signUp, logIn, googleAuth } from "../api";
 import { GoogleLogin } from "@react-oauth/google";
-import { jwtDecode } from "jwt-decode";
 
 const OrganizerAuth: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -13,15 +12,15 @@ const OrganizerAuth: React.FC = () => {
   });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [googleInit, setGoogleInit] = useState(false);
   const navigate = useNavigate();
-
-  const { name, email, password }: { name: string, email: string, password: string } = formData;
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
       navigate("/organizer/dashboard");
     }
+    setGoogleInit(true);
   }, [navigate]);
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,11 +31,10 @@ const OrganizerAuth: React.FC = () => {
   const handleGoogleSuccess = async (credentialResponse: any) => {
     setLoading(true);
     try {
-      const decoded: any = jwtDecode(credentialResponse.credential);
+      const res = await googleAuth(credentialResponse.credential);
 
-      // Save data exactly like your standard login does
-      localStorage.setItem("token", credentialResponse.credential);
-      localStorage.setItem("organizerName", decoded.name);
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("organizerName", res.data.user.name);
 
       navigate("/organizer/dashboard");
     } catch (err) {
@@ -95,10 +93,12 @@ const OrganizerAuth: React.FC = () => {
 
             {/* Google Section */}
             <div className="mb-6 flex flex-col items-center">
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={() => setError("Google Login Failed")}
-              />
+              {googleInit && (
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => setError("Google Login Failed")}
+                />
+              )}
               <div className="relative flex py-5 items-center w-full">
                 <div className="flex-grow border-t border-gray-300"></div>
                 <span className="flex-shrink mx-4 text-gray-400 text-xs uppercase">

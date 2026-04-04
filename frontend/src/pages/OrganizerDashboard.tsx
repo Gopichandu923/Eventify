@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { getMyEvents } from "../api";
+import { getMyEvents, logout } from "../api";
 
 interface Event {
   _id: string;
@@ -27,7 +27,7 @@ const OrganizerDashboard: React.FC = () => {
         return;
       }
       try {
-        const res = await getMyEvents(token);
+        const res = await getMyEvents();
         setEvents(res.data);
       } catch (err: any) {
         setError(
@@ -41,10 +41,17 @@ const OrganizerDashboard: React.FC = () => {
     fetchEvents();
   }, [token, navigate]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("organizerName");
-    navigate("/organizer/auth");
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/organizer/auth");
+    } catch (err) {
+      console.error("Logout failed", err);
+      // fallback even if logout api fails
+      localStorage.removeItem("token");
+      localStorage.removeItem("organizerName");
+      navigate("/organizer/auth");
+    }
   };
 
   if (loading) {

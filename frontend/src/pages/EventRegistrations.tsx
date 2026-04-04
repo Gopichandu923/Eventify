@@ -48,7 +48,7 @@ const EventRegistrations: React.FC = () => {
     }
     setLoading(true);
     try {
-      const res = await getEventRegistrations(eventId, token);
+      const res = await getEventRegistrations(eventId);
       setEvent(res.data.event);
       setRegistrations(res.data.registrations);
       setError(null);
@@ -76,8 +76,7 @@ const EventRegistrations: React.FC = () => {
     try {
       await updateRegistrationStatus(
         registrationId,
-        { status: newStatus },
-        token
+        { status: newStatus }
       );
       fetchRegistrations();
     } catch (err: any) {

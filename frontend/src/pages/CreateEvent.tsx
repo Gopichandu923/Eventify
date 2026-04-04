@@ -27,14 +27,6 @@ const CreateEvent: React.FC = () => {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      setError("Authorization token missing. Please log in again.");
-      setLoading(false);
-      return;
-    }
-
     const dataToSend = {
       ...formData,
       approvalMode: formData.approvalMethod,
@@ -42,7 +34,7 @@ const CreateEvent: React.FC = () => {
     };
 
     try {
-      await createEvent(dataToSend, token);
+      await createEvent(dataToSend);
       alert("Event created successfully!");
       navigate("/organizer/dashboard");
     } catch (err: any) {
