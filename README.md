@@ -1,6 +1,6 @@
 # 🎟️ Eventify – Premium Event Registration & Digital Ticketing
 
-**Eventify** is a professional-grade **MERN** stack application designed to automate event lifecycle management—from secure organizer creation to attendee registration and instant QR-based entry verification.
+**Eventify** is a professional-grade **Next.js** full-stack application for event lifecycle management—from secure organizer creation to attendee registration and instant QR-based entry verification.
 
 ---
 
@@ -9,73 +9,116 @@ Eventify bridges the gap between digital registration and physical event entry. 
 
 ---
 
-## ✨ Advanced Features
+## ✨ Features
 
 ### 👨‍💼 For Organizers (Command Center)
-- **Unified Authentication**: Login via traditional email/password or **Google OAuth** for a seamless experience.
+- **Unified Authentication**: Login via traditional email/password or **Google OAuth**.
 - **Smart Dashboard**: Manage multiple events with real-time "Tickets Left" tracking and automated sorting (upcoming events first).
 - **Dual Approval Flow**:
   - **Auto**: Instant ticket generation upon registration.
   - **Manual**: Review attendee details before granting access.
-- **Entry Verification Scanner**: Built-in QR code validator. Organizers can scan attendee tickets with any mobile device to get an instant **VERIFIED** or **INVALID** status.
-- **Session Security**: Advanced `httpOnly` refresh token strategy ensures long-lasting but extremely secure sessions.
+- **Entry Verification Scanner**: Built-in QR code validator. Verify attendee tickets instantly with **VERIFIED** or **INVALID** status.
+- **Session Security**: JWT-based authentication with token refresh strategy.
 
 ### 👥 For Attendees
 - **Premium Digital Tickets**: High-fidelity "Admit One" tickets featuring:
   - **Environment-Aware QR Codes**: Scannable codes for event entry.
-  - **Perforated Stub Design**: A professional look optimized for both mobile and high-quality printing.
+  - **Professional Design**: Optimized for both mobile and printing.
 - **Live Event Status**: Instant feedback on **Completed** (past) events and **Sold Out** status.
-- **Ticket Lookup**: Lost your link? Retrieve your unique ticket anytime using your email and event ID.
+- **Ticket Lookup**: Retrieve your unique ticket anytime using your email and event ID.
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: React 18, TypeScript, Tailwind CSS, Vite.
-- **Backend**: Node.js, Express, Mongoose.
-- **Security**: JWT (Access + Refresh Tokens), Bcrypt, Google Auth Library, Cookie-Parser.
-- **Tools**: QR Code SVG Generation (`qrcode.react`), Axios Interceptors (Zero-touch token rotation).
+- **Framework**: Next.js 16 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS v4
+- **Database**: MongoDB + Mongoose
+- **Security**: JWT, Bcrypt, Google Auth Library
+- **QR Codes**: qrcode.react
+- **HTTP Client**: Axios with interceptors
 
 ---
 
 ## 💻 Installation & Setup
 
-### 1️⃣ Backend Setup
-```bash
-cd backend
-npm install
+### Prerequisites
+- Node.js 18+
+- MongoDB instance (local or Atlas)
 
-# Create .env file with the following:
-PORT=5000
-NODE_ENV=development
-MONGO_URI=your_mongodb_uri
-JWT_SECRET=your_access_secret
-REFRESH_TOKEN_SECRET=your_refresh_secret
-GOOGLE_CLIENT_ID=your_google_id
-JWT_EXPIRY=15m
-JWT_REFRESH_EXPIRY=7d
-SALT_ROUNDS=10
+### 1️⃣ Clone & Install
+```bash
+git clone <repo-url>
+cd eventify
+npm install
 ```
-`npm start` to run the server.
 
-### 2️⃣ Frontend Setup
+### 2️⃣ Environment Variables
+Create a `.env.local` file in the root directory:
+
+```env
+# Database
+MONGODB_URI=your_mongodb_connection_string
+
+# JWT
+JWT_SECRET=your_jwt_secret_min_32_chars
+REFRESH_TOKEN_SECRET=your_refresh_secret_min_32_chars
+SALT_ROUNDS=10
+
+# Google OAuth
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=your_google_client_id
+
+# API (optional - for production)
+NEXT_PUBLIC_API_URL=https://your-domain.com/api
+```
+
+### 3️⃣ Run Development Server
 ```bash
-cd frontend
-npm install
-
-# Configure API
-# Ensure src/api.ts points to http://localhost:5000/api for local development.
-
 npm run dev
 ```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+---
+
+## 📡 API Endpoints
+
+### Authentication
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/register` | Register new user |
+| POST | `/api/auth/login` | Login with email/password |
+| POST | `/api/auth/google` | Login/Register with Google |
+| POST | `/api/auth/logout` | Logout user |
+| GET | `/api/auth/refresh` | Refresh access token |
+
+### Events
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/events` | Get organizer's events |
+| GET | `/api/events/all` | Get all public events |
+| GET | `/api/events/[id]` | Get single event |
+| POST | `/api/events` | Create new event |
+| PUT | `/api/events/[id]` | Update event |
+| DELETE | `/api/events/[id]` | Delete event |
+| GET | `/api/events/[id]/registrations` | Get event registrations |
+
+### Registrations
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/registrations` | Get registrations (organizer) |
+| POST | `/api/registrations` | Register for event |
+| PUT | `/api/registrations/[id]/status` | Update registration status |
+| GET | `/api/registrations/tickets/[id]` | Get ticket details |
+| GET | `/api/registrations/tickets/lookup` | Lookup ticket by email |
 
 ---
 
 ## 🛡️ Security Architecture
 Eventify uses a **Silent Token Refresh** architecture:
-1. **Access Token**: Short-lived (15m), stored in memory/localStorage for API calls.
-2. **Refresh Token**: Long-lived (7d), stored in a **Secure, HttpOnly Cookie**.
-3. **Axios Interceptors**: Automatically detect `401 Unauthorized` errors, call the `/refresh` endpoint, and retry the original request without the user ever seeing a login screen.
+1. **Access Token**: Short-lived (7d), stored in localStorage for API calls.
+2. **Axios Interceptors**: Automatically detect `401 Unauthorized` errors, call the `/refresh` endpoint, and retry the original request.
 
 ---
 
@@ -87,4 +130,24 @@ Organizers can verify tickets at the gate:
 
 ---
 
-Proudly built with a focus on performance, security, and premium user experience. 🚀
+## 📁 Project Structure
+
+```
+eventify/
+├── src/
+│   ├── app/                 # Next.js App Router pages
+│   │   ├── api/             # API routes
+│   │   ├── events/          # Public event pages
+│   │   ├── organizer/       # Organizer dashboard
+│   │   └── tickets/         # Ticket pages
+│   ├── components/          # React components
+│   ├── lib/                 # Utilities (db, api)
+│   └── models/              # Mongoose models
+├── public/                  # Static assets
+├── .env.local               # Environment variables
+└── package.json
+```
+
+---
+
+Built with Next.js 16, Tailwind CSS, and MongoDB. 🚀
