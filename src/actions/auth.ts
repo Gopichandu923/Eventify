@@ -3,10 +3,14 @@
 import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { OAuth2Client } from "google-auth-library";
 import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 
 const JWT_SECRET = process.env.JWT_SECRET || "fallback-secret";
+const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
+
+const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 export async function logIn(email: string, password: string) {
   await connectDB();
@@ -50,9 +54,49 @@ export async function signUp(name: string, email: string, password: string) {
 
 export async function googleAuth(credential: string) {
   await connectDB();
-  // Google OAuth implementation would go here
-  // For now, just throw an error
-  throw new Error("Google auth not implemented in server actions");
+  
+  if (!credential) {
+    throw new Error("Missing credential");
+  }
+
+  const ticket = await googleClient.verifyIdToken({
+    idToken: credential,
+    audience: GOOGLE_CLIENT_ID,
+  });
+
+  const payload = ticket.getPayload();
+  if (!payload) {
+    throw new Error("Invalid Google token");
+  }
+
+  const { email, name } = payload;
+  if (!email) {
+    throw new Error("No email found in Google token");
+  }
+
+  let user = await User.findOne({ email });
+
+  if (!user) {
+    const randomPassword = Math.random().toString(36) + Math.random().toString(36);
+    user = await User.create({
+      name: name || "Google User",
+      email,
+      password: await bcrypt.hash(randomPassword, 12),
+    });
+  }
+
+  const token = jwt.sign({ user: { id: user._id } }, JWT_SECRET, { expiresIn: "7d" });
+  
+  const cookieStore = await cookies();
+  cookieStore.set("token", token, { 
+    httpOnly: true, 
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 60 * 60 * 24 * 7,
+    path: "/",
+  });
+
+  return { name: user.name, email: user.email };
 }
 
 export async function logout() {

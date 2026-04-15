@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { GoogleLogin } from "@react-oauth/google";
 import { signUp, logIn, googleAuth } from "@/actions/auth";
@@ -10,12 +10,7 @@ export default function OrganizerAuth() {
   const [formData, setFormData] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [googleInit, setGoogleInit] = useState(false);
   const router = useRouter();
-
-  useEffect(() => {
-    setGoogleInit(true);
-  }, []);
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -23,7 +18,17 @@ export default function OrganizerAuth() {
   };
 
   const handleGoogleSuccess = async (credentialResponse: unknown) => {
-    setError("Google auth not implemented in server actions.");
+    setLoading(true);
+    try {
+      const cred = credentialResponse as { credential?: string };
+      await googleAuth(cred.credential || "");
+      router.push("/organizer/dashboard");
+    } catch (err: Error | unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Google authentication failed.";
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -76,18 +81,16 @@ export default function OrganizerAuth() {
               <p className="text-[9px] font-black text-indigo-400/80 uppercase tracking-[0.2em] mb-3 text-center transition-all">
                 {isLogin ? "GOOGLE LOGIN PROTOCOL" : "GOOGLE NODE ENROLLMENT"}
               </p>
-              {googleInit && (
-                <div className="w-full transform transition-transform hover:scale-[1.01]">
-                  <GoogleLogin
-                    onSuccess={handleGoogleSuccess}
-                    onError={() => setError("Google Access Failed")}
-                    theme="filled_black"
-                    shape="pill"
-                    width="320"
-                    text={isLogin ? "signin_with" : "signup_with"}
-                  />
-                </div>
-              )}
+              <div className="w-full transform transition-transform hover:scale-[1.01]">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => setError("Google Access Failed")}
+                  theme="filled_black"
+                  shape="pill"
+                  width="320"
+                  text={isLogin ? "signin_with" : "signup_with"}
+                />
+              </div>
             </div>
 
             <div className="relative flex items-center py-1">
