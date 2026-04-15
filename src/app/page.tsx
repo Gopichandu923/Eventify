@@ -2,9 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { getAllEvents } from "@/lib/api";
+import { useEffect, useState } from "react";
+import { getAllEvents } from "@/actions/events";
 
 interface Event {
   _id: string;
@@ -94,24 +93,30 @@ export default function Home() {
 }
 
 function EventList() {
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["events"],
-    queryFn: async () => {
-      const res = await getAllEvents();
-      const fetchedEvents = Array.isArray(res.data) ? res.data : [];
-      return [...fetchedEvents].sort((a: Event, b: Event) => {
-        const isAExpired = new Date(a.date) < new Date();
-        const isBExpired = new Date(b.date) < new Date();
-        if (!isAExpired && isBExpired) return -1;
-        if (isAExpired && !isBExpired) return 1;
-        return new Date(a.date).getTime() - new Date(b.date).getTime();
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    getAllEvents()
+      .then((res) => {
+        const fetchedEvents = Array.isArray(res) ? res : [];
+        setEvents([...fetchedEvents].sort((a: Event, b: Event) => {
+          const isAExpired = new Date(a.date) < new Date();
+          const isBExpired = new Date(b.date) < new Date();
+          if (!isAExpired && isBExpired) return -1;
+          if (isAExpired && !isBExpired) return 1;
+          return new Date(a.date).getTime() - new Date(b.date).getTime();
+        }));
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
       });
-    },
-  });
+  }, []);
 
-  const events = data || [];
-
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">

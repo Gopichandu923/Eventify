@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { GoogleLogin } from "@react-oauth/google";
-import { signUp, logIn, googleAuth } from "@/lib/api";
+import { signUp, logIn, googleAuth } from "@/actions/auth";
 
 export default function OrganizerAuth() {
   const [isLogin, setIsLogin] = useState(true);
@@ -14,12 +14,8 @@ export default function OrganizerAuth() {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      router.push("/organizer/dashboard");
-    }
     setGoogleInit(true);
-  }, [router]);
+  }, []);
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -27,32 +23,22 @@ export default function OrganizerAuth() {
   };
 
   const handleGoogleSuccess = async (credentialResponse: unknown) => {
-    setLoading(true);
-    try {
-      const cred = credentialResponse as { credential?: string };
-      const res = await googleAuth(cred.credential || "");
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("organizerName", res.data.user.name);
-      router.push("/organizer/dashboard");
-    } catch {
-      setError("Failed to process Google Account info.");
-    } finally {
-      setLoading(false);
-    }
+    setError("Google auth not implemented in server actions.");
   };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const authFunction = isLogin ? logIn : signUp;
-      const res = await authFunction(formData);
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("organizerName", res.data.user.name);
+      if (isLogin) {
+        await logIn(formData.email, formData.password);
+      } else {
+        await signUp(formData.name, formData.email, formData.password);
+      }
       router.push("/organizer/dashboard");
     } catch (err: Error | unknown) {
-      const error = err as { response?: { data?: { message?: string } } };
-      setError(error.response?.data?.message || "Authentication failed.");
+      const errorMessage = err instanceof Error ? err.message : "Authentication failed.";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createEvent } from "@/lib/api";
+import { createEvent } from "@/actions/events";
 
 export default function CreateEvent() {
   const [formData, setFormData] = useState({
@@ -28,8 +28,11 @@ export default function CreateEvent() {
     e.preventDefault();
     setLoading(true);
     const dataToSend = {
-      ...formData,
-      approvalMode: formData.approvalMethod,
+      title: formData.title,
+      description: formData.description,
+      date: formData.date,
+      venue: formData.venue,
+      approvalMode: formData.approvalMethod as "auto" | "manual",
       ticketLimit: Number(formData.ticketLimit),
     };
 
@@ -38,8 +41,8 @@ export default function CreateEvent() {
       alert("Event created successfully!");
       router.push("/organizer/dashboard");
     } catch (err: Error | unknown) {
-      const error = err as { response?: { data?: { message?: string } } };
-      setError(error.response?.data?.message || "Error creating event.");
+      const errorMessage = err instanceof Error ? err.message : "Error creating event.";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

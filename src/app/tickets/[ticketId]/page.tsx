@@ -2,7 +2,7 @@
 
 import { use, useEffect, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { getTicketDetails } from "@/lib/api";
+import { getTicketDetails } from "@/actions/events";
 
 interface EventDetails {
   title: string;
@@ -34,11 +34,17 @@ export default function TicketPage({ params }: { params: Promise<{ ticketId: str
 
       try {
         const res = await getTicketDetails(ticketId);
-        setTicket(res.data);
+        setTicket({
+          ticketId: res.ticketId,
+          name: res.name,
+          email: res.email,
+          status: res.status,
+          event: res.event,
+        } as TicketData);
         setError(null);
       } catch (err: Error | unknown) {
-        const error = err as { response?: { data?: { message?: string } }; message?: string };
-        setError(error.response?.data?.message || error.message || "Failed to load ticket details.");
+        const errorMessage = err instanceof Error ? err.message : "Failed to load ticket details.";
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }

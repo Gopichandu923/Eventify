@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, use } from "react";
+import { useState, use, useEffect } from "react";
 import Link from "next/link";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getEventDetails, registerForEvent } from "@/lib/api";
+import { getEventDetails, registerForEvent } from "@/actions/events";
 
 interface Event {
   _id: string;
@@ -17,53 +16,53 @@ interface Event {
 
 export default function PublicEventPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const queryClient = useQueryClient();
+  const [event, setEvent] = useState<Event | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [registrationData, setRegistrationData] = useState({ name: "", email: "" });
   const [message, setMessage] = useState<string | null>(null);
   const [ticketId, setTicketId] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  const { data: event, isLoading, error } = useQuery({
-    queryKey: ["event", id],
-    queryFn: async () => {
-      const res = await getEventDetails(id);
-      return res.data as Event;
-    },
-    enabled: !!id,
-  });
+  useEffect(() => {
+    if (!id) return;
+    getEventDetails(id)
+      .then((data) => {
+        setEvent(data as Event);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, [id]);
 
-  const registrationMutation = useMutation({
-    mutationFn: (data: { eventId: string; name: string; email: string }) =>
-      registerForEvent(data),
-    onSuccess: (res) => {
-      const { ticketId: tid, status } = res.data;
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setRegistrationData({ ...registrationData, [e.target.name]: e.target.value });
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!id || !event) return;
+    setSubmitting(true);
+    try {
+      const res = await registerForEvent({ eventId: id, ...registrationData });
+      const { ticketId: tid, status } = res;
       const statusMsg =
         status === "Approved"
           ? 'Your ticket is immediately "Approved"!'
           : 'Your registration is "Pending" until the organizer takes action.';
       setMessage(`Registration successful! ${statusMsg} Please use the download link below.`);
       setTicketId(tid);
-      queryClient.invalidateQueries({ queryKey: ["event", id] });
-    },
-    onError: (err: Error | unknown) => {
-      const error = err as { response?: { data?: { message?: string; msg?: string } } };
-      setMessage(
-        "Registration failed: " +
-          (error.response?.data?.message || error.response?.data?.msg || "Server error.")
-      );
+    } catch (err: Error | unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Server error.";
+      setMessage("Registration failed: " + errorMessage);
       setTicketId(null);
-    },
-  });
-
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setRegistrationData({ ...registrationData, [e.target.name]: e.target.value });
-
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!id || !event) return;
-    registrationMutation.mutate({ eventId: id, ...registrationData });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh] bg-[#0a0a0c]">
         <div className="text-center">
@@ -331,10 +330,10 @@ export default function PublicEventPage({ params }: { params: Promise<{ id: stri
                   </div>
                   <button
                     type="submit"
-                    disabled={registrationMutation.isPending}
+                    disabled={submitting}
                     className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-[10px] uppercase tracking-widest rounded-xl transition-all shadow-xl shadow-indigo-600/20 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
                   >
-                    {registrationMutation.isPending ? "Connecting..." : "Initialize Access"}
+                    {submitting ? "Connecting..." : "Initialize Access"}
                   </button>
                   <p className="text-[7px] text-center text-gray-700 font-black uppercase tracking-[0.3em] mt-4 italic">
                     Registry Encryption: AES-256

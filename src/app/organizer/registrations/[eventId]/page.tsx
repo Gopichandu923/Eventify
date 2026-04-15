@@ -1,10 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { use } from "react";
+import { useState, use, useEffect } from "react";
 import Link from "next/link";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getEventRegistrations, updateRegistrationStatus } from "@/lib/api";
+import { getEventRegistrations, updateRegistrationStatus } from "@/actions/events";
 
 interface Event {
   _id: string;
@@ -22,31 +20,38 @@ interface Registration {
 
 export default function EventRegistrations({ params }: { params: Promise<{ eventId: string }> }) {
   const { eventId } = use(params);
-  const queryClient = useQueryClient();
   const [filter, setFilter] = useState<"all" | "Pending" | "Approved" | "Rejected">("all");
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const [data, setData] = useState<{ event: Event; registrations: Registration[] } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [updating, setUpdating] = useState(false);
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["registrations", eventId],
-    queryFn: async () => {
-      if (!token || !eventId) throw new Error("Missing credentials");
+  useEffect(() => {
+    if (!eventId) return;
+    getEventRegistrations(eventId)
+      .then((res) => {
+        setData(res as { event: Event; registrations: Registration[] });
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, [eventId]);
+
+  const handleUpdateStatus = async (id: string, status: "Approved" | "Rejected") => {
+    setUpdating(true);
+    try {
+      await updateRegistrationStatus(id, status);
       const res = await getEventRegistrations(eventId);
-      return res.data;
-    },
-    enabled: !!token && !!eventId,
-  });
-
-  const updateStatusMutation = useMutation({
-    mutationFn: ({ id, status }: { id: string; status: "Approved" | "Rejected" }) =>
-      updateRegistrationStatus(id, { status }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["registrations", eventId] });
-    },
-    onError: (err: Error | unknown) => {
-      const error = err as { response?: { data?: { message?: string } } };
-      alert(error.response?.data?.message || "Error updating status.");
-    },
-  });
+      setData(res as { event: Event; registrations: Registration[] });
+    } catch (err: Error | unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Error updating status.";
+      alert(errorMessage);
+    } finally {
+      setUpdating(false);
+    }
+  };
 
   const event = data?.event as Event | null;
   const registrations = (Array.isArray(data?.registrations) ? data.registrations : []) as Registration[];
@@ -63,7 +68,7 @@ export default function EventRegistrations({ params }: { params: Promise<{ event
     rejected: registrations.filter((r) => r.status === "Rejected").length,
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh] bg-[#0a0a0c]">
         <div className="text-center">
@@ -204,15 +209,15 @@ export default function EventRegistrations({ params }: { params: Promise<{ event
                         {event.approvalMode === "manual" && reg.status === "Pending" ? (
                           <div className="flex justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button
-                              onClick={() => updateStatusMutation.mutate({ id: reg._id, status: "Approved" })}
-                              disabled={updateStatusMutation.isPending}
+                              onClick={() => handleUpdateStatus(reg._id, "Approved")}
+                              disabled={updating}
                               className="px-2 md:px-3 py-1 md:py-1.5 bg-white text-indigo-600 text-[7px] md:text-[8px] font-black rounded-lg hover:bg-neutral-100 transition-all uppercase tracking-widest disabled:opacity-50"
                             >
                               Verify
                             </button>
                             <button
-                              onClick={() => updateStatusMutation.mutate({ id: reg._id, status: "Rejected" })}
-                              disabled={updateStatusMutation.isPending}
+                              onClick={() => handleUpdateStatus(reg._id, "Rejected")}
+                              disabled={updating}
                               className="px-2 md:px-3 py-1 md:py-1.5 bg-rose-500 text-white text-[7px] md:text-[8px] font-black rounded-lg hover:bg-rose-400 transition-all uppercase tracking-widest disabled:opacity-50"
                             >
                               Void

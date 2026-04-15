@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { use } from "react";
 import Link from "next/link";
-import { getTicketDetails } from "@/lib/api";
+import { getTicketDetails } from "@/actions/events";
 
 interface EventDetails {
   title: string;
@@ -35,11 +35,17 @@ export default function TicketVerification({ params }: { params: Promise<{ ticke
 
       try {
         const res = await getTicketDetails(ticketId);
-        setTicket(res.data);
+        setTicket({
+          ticketId: res.ticketId,
+          name: res.name,
+          email: res.email,
+          status: res.status,
+          event: res.event,
+        } as TicketData);
         setError(null);
-} catch (err: Error | unknown) {
-      const error = err as { response?: { data?: { message?: string } } };
-      setError(error.response?.data?.message || "This ticket is INVALID or does not exist in our system.");
+      } catch (err: Error | unknown) {
+        const errorMessage = err instanceof Error ? err.message : "This ticket is INVALID or does not exist in our system.";
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }

@@ -2,8 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
-import { getMyEvents, logout } from "@/lib/api";
+import { useEffect, useState } from "react";
+import { getMyEvents } from "@/actions/events";
+import { logout } from "@/actions/auth";
 
 interface Event {
   _id: string;
@@ -15,28 +16,28 @@ interface Event {
 
 export default function OrganizerDashboard() {
   const router = useRouter();
-  const organizerName = typeof window !== "undefined" ? localStorage.getItem("organizerName") : null;
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const { data: events, isLoading, error } = useQuery({
-    queryKey: ["my-events"],
-    queryFn: async () => {
-      if (!token) {
-        router.push("/organizer/auth");
-        return [];
-      }
-      const res = await getMyEvents();
-      const fetchedEvents = Array.isArray(res.data) ? res.data : [];
-      return [...fetchedEvents].sort((a: Event, b: Event) => {
-        const isAExpired = new Date(a.date) < new Date();
-        const isBExpired = new Date(b.date) < new Date();
-        if (!isAExpired && isBExpired) return -1;
-        if (isAExpired && !isBExpired) return 1;
-        return new Date(a.date).getTime() - new Date(b.date).getTime();
+  useEffect(() => {
+    getMyEvents()
+      .then((res) => {
+        const fetchedEvents = Array.isArray(res) ? res : [];
+        setEvents([...fetchedEvents].sort((a: Event, b: Event) => {
+          const isAExpired = new Date(a.date) < new Date();
+          const isBExpired = new Date(b.date) < new Date();
+          if (!isAExpired && isBExpired) return -1;
+          if (isAExpired && !isBExpired) return 1;
+          return new Date(a.date).getTime() - new Date(b.date).getTime();
+        }));
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
       });
-    },
-    enabled: !!token,
-  });
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -44,15 +45,11 @@ export default function OrganizerDashboard() {
       router.push("/organizer/auth");
     } catch (err) {
       console.error("Logout failed", err);
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("token");
-        localStorage.removeItem("organizerName");
-      }
       router.push("/organizer/auth");
     }
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
@@ -81,7 +78,7 @@ export default function OrganizerDashboard() {
     );
   }
 
-  const eventList = events || [];
+  const eventList = events;
 
   return (
     <div className="max-w-6xl mx-auto pb-10">
@@ -97,7 +94,7 @@ export default function OrganizerDashboard() {
               </div>
               <div>
                 <h1 className="text-xl md:text-3xl font-black text-white tracking-tight mb-0.5 italic">
-                  Welcome, <span className="text-indigo-200">{organizerName || "Organizer"}</span>
+                  Welcome, <span className="text-indigo-200">Organizer</span>
                 </h1>
                 <p className="text-indigo-200/50 text-[8px] md:text-[10px] font-black uppercase tracking-widest leading-relaxed italic opacity-80">
                   Status: Fully Operational

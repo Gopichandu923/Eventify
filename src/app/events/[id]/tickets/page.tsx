@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { use } from "react";
 import { useRouter } from "next/navigation";
-import { getTicketId } from "@/lib/api";
+import { getTicketId } from "@/actions/events";
 
 export default function TicketLookup({ params }: { params: Promise<{ id: string }> }) {
   const { id: eventId } = use(params);
@@ -25,10 +25,10 @@ export default function TicketLookup({ params }: { params: Promise<{ id: string 
 
     try {
       const res = await getTicketId(eventId, email);
-      router.push(`/tickets/${res.data.ticketId}`);
+      router.push(`/tickets/${res.ticketId}`);
     } catch (err: Error | unknown) {
-      const error = err as { response?: { data?: { message?: string } } };
-      setError(error.response?.data?.message || "Could not find a ticket for this email.");
+      const errorMessage = err instanceof Error ? err.message : "Could not find a ticket for this email.";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
