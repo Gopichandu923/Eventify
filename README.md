@@ -5,6 +5,7 @@
 ---
 
 ## 🚀 Vision
+
 Eventify bridges the gap between digital registration and physical event entry. It provides organizers with a powerful dashboard to manage attendee flow and participants with a premium, print-ready ticketing experience.
 
 ---
@@ -18,7 +19,7 @@ Eventify bridges the gap between digital registration and physical event entry. 
   - **Auto**: Instant ticket generation upon registration.
   - **Manual**: Review attendee details before granting access.
 - **Entry Verification Scanner**: Built-in QR code validator. Verify attendee tickets instantly with **VERIFIED** or **INVALID** status.
-- **Session Security**: JWT-based authentication with token refresh strategy.
+- **Session Security**: JWT-based authentication with secure httpOnly cookies.
 
 ### 👥 For Attendees
 - **Premium Digital Tickets**: High-fidelity "Admit One" tickets featuring:
@@ -37,7 +38,7 @@ Eventify bridges the gap between digital registration and physical event entry. 
 - **Database**: MongoDB + Mongoose
 - **Security**: JWT, Bcrypt, Google Auth Library
 - **QR Codes**: qrcode.react
-- **HTTP Client**: Axios with interceptors
+- **Data Fetching**: Server Actions
 
 ---
 
@@ -63,14 +64,10 @@ MONGODB_URI=your_mongodb_connection_string
 
 # JWT
 JWT_SECRET=your_jwt_secret_min_32_chars
-REFRESH_TOKEN_SECRET=your_refresh_secret_min_32_chars
 SALT_ROUNDS=10
 
 # Google OAuth
 NEXT_PUBLIC_GOOGLE_CLIENT_ID=your_google_client_id
-
-# API (optional - for production)
-NEXT_PUBLIC_API_URL=https://your-domain.com/api
 ```
 
 ### 3️⃣ Run Development Server
@@ -82,51 +79,22 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
-## 📡 API Endpoints
+## 🔐 Authentication
 
-### Authentication
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/auth/register` | Register new user |
-| POST | `/api/auth/login` | Login with email/password |
-| POST | `/api/auth/google` | Login/Register with Google |
-| POST | `/api/auth/logout` | Logout user |
-| GET | `/api/auth/refresh` | Refresh access token |
+Eventify uses **JWT stored in httpOnly cookies** for secure authentication:
 
-### Events
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/events` | Get organizer's events |
-| GET | `/api/events/all` | Get all public events |
-| GET | `/api/events/[id]` | Get single event |
-| POST | `/api/events` | Create new event |
-| PUT | `/api/events/[id]` | Update event |
-| DELETE | `/api/events/[id]` | Delete event |
-| GET | `/api/events/[id]/registrations` | Get event registrations |
+- **Login/Signup**: Server Actions validate credentials, issue JWT
+- **Token Storage**: JWT stored in httpOnly, secure cookies
+- **Token Verification**: Each server action verifies token via `jwt.verify()`
 
-### Registrations
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/registrations` | Get registrations (organizer) |
-| POST | `/api/registrations` | Register for event |
-| PUT | `/api/registrations/[id]/status` | Update registration status |
-| GET | `/api/registrations/tickets/[id]` | Get ticket details |
-| GET | `/api/registrations/tickets/lookup` | Lookup ticket by email |
-
----
-
-## 🛡️ Security Architecture
-Eventify uses a **Silent Token Refresh** architecture:
-1. **Access Token**: Short-lived (7d), stored in localStorage for API calls.
-2. **Axios Interceptors**: Automatically detect `401 Unauthorized` errors, call the `/refresh` endpoint, and retry the original request.
-
----
-
-## 🎫 QR Verification Workflow
-Organizers can verify tickets at the gate:
-1. Points a smartphone camera at the attendee's QR code.
-2. Clicks the scanned URL.
-3. The app instantly checks the database and displays a **VERIFIED** badge with the attendee's name and event details.
+### Auth Actions (`src/actions/auth.ts`)
+| Action | Description |
+|--------|-------------|
+| `logIn(email, password)` | Login with email/password |
+| `signUp(name, email, password)` | Register new user |
+| `googleAuth(credential)` | Login/Register with Google |
+| `logout()` | Clear auth cookie |
+| `getCurrentUser()` | Get current logged in user |
 
 ---
 
@@ -135,18 +103,29 @@ Organizers can verify tickets at the gate:
 ```
 eventify/
 ├── src/
-│   ├── app/                 # Next.js App Router pages
-│   │   ├── api/             # API routes
-│   │   ├── events/          # Public event pages
-│   │   ├── organizer/       # Organizer dashboard
-│   │   └── tickets/         # Ticket pages
-│   ├── components/          # React components
-│   ├── lib/                 # Utilities (db, api)
-│   └── models/              # Mongoose models
-├── public/                  # Static assets
-├── .env.local               # Environment variables
+│   ├── actions/              # Server Actions
+│   │   ├── auth.ts           # Authentication actions
+│   │   └── events.ts         # Event management actions
+│   ├── app/                  # Next.js App Router pages
+│   │   ├── events/           # Public event pages
+│   │   ├── organizer/        # Organizer dashboard
+│   │   └── tickets/          # Ticket pages
+│   ├── components/           # React components
+│   ├── lib/                  # Utilities (db, api)
+│   └── models/               # Mongoose models
+├── public/                   # Static assets
+├── .env.local                # Environment variables
 └── package.json
 ```
+
+---
+
+## 🎫 QR Verification Workflow
+
+Organizers can verify tickets at the gate:
+1. Points a smartphone camera at the attendee's QR code.
+2. Clicks the scanned URL.
+3. The app instantly checks the database and displays a **VERIFIED** badge with the attendee's name and event details.
 
 ---
 
